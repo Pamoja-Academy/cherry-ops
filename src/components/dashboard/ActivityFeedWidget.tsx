@@ -27,50 +27,43 @@ function timeAgo(dateStr: string): string {
 const TYPE_COLORS: Record<string, string> = {
   sla_flag: "#C4122F",
   overdue_flag: "#C4122F",
-  pacing_alert: "#D97706",
-  lead_nudge: "#7A0B22",
-  invoice_paid: "#16A34A",
-  invoice_sent: "#1D4ED8",
-  stage_change: "#1D4ED8",
-  job_created: "#16A34A",
-  client_created: "#16A34A",
-  lead_created: "#7A0B22",
-  lead_updated: "#7A0B22",
-  nudge: "#D97706",
+  pacing_alert: "#FBBF24",
+  lead_nudge: "#F87171",
+  invoice_paid: "#4ADE80",
+  invoice_sent: "#FCA5A5",
+  stage_change: "#FCA5A5",
+  job_created: "#4ADE80",
+  client_created: "#4ADE80",
+  lead_created: "#F87171",
+  lead_updated: "#F87171",
+  nudge: "#FBBF24",
 };
 
 export function ActivityFeedWidget({ events }: Props) {
   return (
-    <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-      <h3 className="font-display font-bold text-base mb-4" style={{ color: "#1A1214" }}>
-        Live Activity Feed
-      </h3>
-      <div className="space-y-3 overflow-y-auto" style={{ maxHeight: 360 }}>
+    <div className="border border-white/10 bg-[#111] p-6">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#C4122F]">
+        Live
+      </p>
+      <h3 className="mt-1 font-display text-xl font-bold text-white">Activity Feed</h3>
+      <div className="mt-5 max-h-[360px] space-y-4 overflow-y-auto">
         <AnimatePresence>
           {events.map((event, i) => {
-            const color = TYPE_COLORS[event.type] ?? "#8C8078";
+            const color = TYPE_COLORS[event.type] ?? "#777";
             return (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.04, duration: 0.3 }}
-                className="flex gap-3"
+                className="flex gap-3 border-b border-white/5 pb-3 last:border-0"
               >
-                <div className="flex-shrink-0 mt-1">
-                  <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                </div>
+                <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full" style={{ background: color }} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs leading-relaxed" style={{ color: "#1A1214" }}>
-                    {event.description}
-                  </p>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    {event.actor && (
-                      <span className="text-xs font-medium" style={{ color: "#8C8078" }}>
-                        {event.actor.name}
-                      </span>
-                    )}
-                    <span className="text-xs" style={{ color: "#8C8078" }}>
+                  <p className="text-sm leading-relaxed text-white/85">{event.description}</p>
+                  <div className="mt-1 flex items-center gap-1.5 text-xs text-white/35">
+                    {event.actor && <span>{event.actor.name}</span>}
+                    <span>
                       {event.actor ? "·" : ""} {timeAgo(event.created_at)}
                     </span>
                   </div>

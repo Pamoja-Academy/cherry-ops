@@ -40,8 +40,8 @@ export default async function JobsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>Jobs & Campaigns</h2>
-        <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>{jobs.length} total jobs</p>
+        <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>Jobs & Campaigns</h2>
+        <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{jobs.length} total jobs</p>
       </div>
 
       {/* Kanban */}
@@ -68,15 +68,15 @@ export default async function JobsPage() {
                       <div
                         className="p-4 rounded-xl border transition-all hover:shadow-md cursor-pointer"
                         style={{
-                          background: "#fff",
+                          background: "#111",
                           borderColor: overdue ? "#C4122F" : "#E4D8D1",
                           borderWidth: overdue ? 1.5 : 1,
                         }}
                       >
-                        <div className="text-sm font-semibold mb-1 leading-tight" style={{ color: "#1A1214" }}>
+                        <div className="text-sm font-semibold mb-1 leading-tight" style={{ color: "#f5f5f5" }}>
                           {job.title}
                         </div>
-                        <div className="text-xs mb-3" style={{ color: "#8C8078" }}>
+                        <div className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
                           {job.client?.name ?? "—"}
                         </div>
                         <div className="flex items-center justify-between">
@@ -85,13 +85,13 @@ export default async function JobsPage() {
                             {job.due_date ?? "No date"}
                           </div>
                           {job.value && (
-                            <span className="text-xs font-bold" style={{ color: "#1A1214" }}>
+                            <span className="text-xs font-bold" style={{ color: "#f5f5f5" }}>
                               {fmt(job.value)}
                             </span>
                           )}
                         </div>
                         {job.owner && (
-                          <div className="flex items-center gap-1 mt-2 text-xs" style={{ color: "#8C8078" }}>
+                          <div className="flex items-center gap-1 mt-2 text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
                             <div
                               className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
                               style={{ background: "#C4122F", fontSize: 9 }}
@@ -106,7 +106,7 @@ export default async function JobsPage() {
                   );
                 })}
                 {stageJobs.length === 0 && (
-                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "#E4D8D1", color: "#8C8078" }}>
+                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.45)" }}>
                     Empty
                   </div>
                 )}

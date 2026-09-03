@@ -41,10 +41,7 @@ export default async function DashboardLayout({
           role={session.user.role}
           pendingCount={pendingCount}
         />
-        <main
-          className="flex-1 overflow-y-auto p-6"
-          style={{ background: "#FBF6F2" }}
-        >
+        <main className="flex-1 overflow-y-auto bg-[#080808] p-6 text-white">
           {children}
         </main>
       </div>

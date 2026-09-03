@@ -26,17 +26,17 @@ export default async function ClientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>Clients</h2>
-          <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>{clients.length} accounts</p>
+          <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>Clients</h2>
+          <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{clients.length} accounts</p>
         </div>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+      <div className="rounded-xl border overflow-hidden" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: "1px solid #E4D8D1" }}>
+            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
               {["Client", "Sector", "Account Manager", "Active Jobs", "Outstanding", ""].map((h) => (
-                <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#8C8078" }}>
+                <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
                   {h}
                 </th>
               ))}
@@ -60,8 +60,8 @@ export default async function ClientsPage() {
                         {client.name.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-sm font-semibold" style={{ color: "#1A1214" }}>{client.name}</div>
-                        <div className="text-xs" style={{ color: "#8C8078" }}>{client.contact_name}</div>
+                        <div className="text-sm font-semibold" style={{ color: "#f5f5f5" }}>{client.name}</div>
+                        <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{client.contact_name}</div>
                       </div>
                     </div>
                   </td>
@@ -84,7 +84,7 @@ export default async function ClientsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "#1A1214" }}>
+                    <span className="text-sm" style={{ color: "#f5f5f5" }}>
                       {client.account_manager?.name ?? "—"}
                     </span>
                   </td>
@@ -106,7 +106,7 @@ export default async function ClientsPage() {
                   </td>
                   <td className="px-5 py-4">
                     <Link href={`/clients/${client.id}`}>
-                      <ChevronRight className="w-4 h-4" style={{ color: "#8C8078" }} />
+                      <ChevronRight className="w-4 h-4" style={{ color: "rgba(255,255,255,0.45)" }} />
                     </Link>
                   </td>
                 </tr>

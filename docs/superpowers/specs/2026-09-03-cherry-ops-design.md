@@ -41,16 +41,16 @@ Red Cherry Interactive is a 30-year-old Level 1 BBBEE female-owned full-service 
 - Drizzle ORM + migrations
 - NextAuth.js v5 — email/password, 5 demo role accounts
 - Vercel AI SDK — server actions + `/api/autopilot/run` cron
-- Vercel deploy (Hobby, same pattern as bic-tender-ops: `cherry-ops.vercel.app`)
+- Vercel deploy (Hobby): `cherry-ops.vercel.app`
 - Tailwind CSS v4 + shadcn/ui base + custom Cherry tokens
 - Lucide icons
 
 **Auth roles (demo):**
-- `pheladi@redcherry.demo` / `cherry-ceo-2026` → CEO
-- `creative@redcherry.demo` / `cherry-cd-2026` → Creative Director  
-- `production@redcherry.demo` / `cherry-prod-2026` → Production Manager
-- `media@redcherry.demo` / `cherry-media-2026` → Media Director
-- `finance@redcherry.demo` / `cherry-fin-2026` → Finance Manager
+- `ceo@cherry-ops.demo` / `cherry-ceo-2026` → CEO
+- `cd@cherry-ops.demo` / `cherry-cd-2026` → Creative Director  
+- `production@cherry-ops.demo` / `cherry-prod-2026` → Production Manager
+- `media@cherry-ops.demo` / `cherry-media-2026` → Media Director
+- `finance@cherry-ops.demo` / `cherry-fin-2026` → Finance Manager
 
 ---
 
@@ -177,8 +177,7 @@ Woven into client records and leads:
 
 ## 10. Deploy
 
-- Vercel (hobby) — same team as bic-tender-ops
-- URL: `cherry-ops.vercel.app`
+- Vercel (hobby): `cherry-ops.vercel.app`
 - Supabase: new project `cherry-ops` (eu-west-1)
 - Cron: `/api/autopilot/run` every 15 min via vercel.json
 - Env: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`

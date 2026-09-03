@@ -82,15 +82,15 @@ export default async function LeadsPage() {
                   <div
                     key={lead.id}
                     className="p-4 rounded-xl border"
-                    style={{ background: "#fff", borderColor: "#E4D8D1" }}
+                    style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}
                   >
-                    <div className="text-sm font-semibold mb-0.5" style={{ color: "#1A1214" }}>{lead.company}</div>
-                    <div className="text-xs mb-2" style={{ color: "#8C8078" }}>{lead.sector}</div>
+                    <div className="text-sm font-semibold mb-0.5" style={{ color: "#f5f5f5" }}>{lead.company}</div>
+                    <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>{lead.sector}</div>
                     {lead.contact_name && (
-                      <div className="text-xs mb-1" style={{ color: "#8C8078" }}>👤 {lead.contact_name}</div>
+                      <div className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.45)" }}>👤 {lead.contact_name}</div>
                     )}
                     {lead.source && (
-                      <div className="text-xs mb-2" style={{ color: "#8C8078" }}>📍 {lead.source}</div>
+                      <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>📍 {lead.source}</div>
                     )}
                     {lead.assigned_to && (
                       <div className="flex items-center gap-1.5 mt-2">
@@ -100,13 +100,13 @@ export default async function LeadsPage() {
                         >
                           {lead.assigned_to.avatar_initials}
                         </div>
-                        <span className="text-xs" style={{ color: "#8C8078" }}>{lead.assigned_to.name}</span>
+                        <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{lead.assigned_to.name}</span>
                       </div>
                     )}
                   </div>
                 ))}
                 {stageLeads.length === 0 && (
-                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "#E4D8D1", color: "#8C8078" }}>
+                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.45)" }}>
                     Empty
                   </div>
                 )}

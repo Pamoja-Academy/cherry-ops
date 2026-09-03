@@ -22,14 +22,14 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h2 className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>Settings</h2>
-        <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>Team & workspace configuration</p>
+        <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>Settings</h2>
+        <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>Team & workspace configuration</p>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-        <div className="px-5 py-4 border-b" style={{ borderColor: "#E4D8D1" }}>
-          <h3 className="font-display font-bold" style={{ color: "#1A1214" }}>Team Members</h3>
-          <p className="text-xs mt-0.5" style={{ color: "#8C8078" }}>5 demo accounts available</p>
+      <div className="rounded-xl border overflow-hidden" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
+        <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+          <h3 className="font-display font-bold" style={{ color: "#f5f5f5" }}>Team Members</h3>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>5 demo accounts available</p>
         </div>
         <div>
           {team.map((member, i) => {
@@ -47,8 +47,8 @@ export default async function SettingsPage() {
                   {member.avatar_initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold" style={{ color: "#1A1214" }}>{member.name}</div>
-                  <div className="text-xs" style={{ color: "#8C8078" }}>{member.email}</div>
+                  <div className="text-sm font-semibold" style={{ color: "#f5f5f5" }}>{member.name}</div>
+                  <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{member.email}</div>
                 </div>
                 <div>
                   <span
@@ -64,8 +64,8 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-        <h3 className="font-display font-bold mb-3" style={{ color: "#1A1214" }}>Agency Info</h3>
+      <div className="rounded-xl border p-5" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
+        <h3 className="font-display font-bold mb-3" style={{ color: "#f5f5f5" }}>Agency Info</h3>
         <div className="space-y-3">
           {[
             ["Agency", "Red Cherry Interactive"],
@@ -76,8 +76,8 @@ export default async function SettingsPage() {
             ["Demo Version", "Cherry Ops v1 · Contest Entry 2026"],
           ].map(([label, value]) => (
             <div key={label} className="flex gap-4 text-sm">
-              <span className="w-28 flex-shrink-0 font-semibold text-xs uppercase tracking-wider" style={{ color: "#8C8078" }}>{label}</span>
-              <span style={{ color: "#1A1214" }}>{value}</span>
+              <span className="w-28 flex-shrink-0 font-semibold text-xs uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>{label}</span>
+              <span style={{ color: "#f5f5f5" }}>{value}</span>
             </div>
           ))}
         </div>

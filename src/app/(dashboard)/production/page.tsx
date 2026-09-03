@@ -21,8 +21,8 @@ export default async function ProductionPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>Production Board</h2>
-        <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>{tasks.length} tasks across all jobs</p>
+        <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>Production Board</h2>
+        <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{tasks.length} tasks across all jobs</p>
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -49,7 +49,7 @@ export default async function ProductionPage() {
                       key={task.id}
                       className="p-4 rounded-xl border transition-all"
                       style={{
-                        background: "#fff",
+                        background: "#111",
                         borderColor: overdue ? "#C4122F" : "#E4D8D1",
                         borderWidth: overdue ? 1.5 : 1,
                       }}
@@ -57,7 +57,7 @@ export default async function ProductionPage() {
                       <div className="text-sm font-semibold mb-1" style={{ color: overdue ? "#C4122F" : "#1A1214" }}>
                         {task.title}
                       </div>
-                      <div className="text-xs mb-2" style={{ color: "#8C8078" }}>
+                      <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>
                         {task.job?.title ?? "—"}
                       </div>
                       <div className="flex items-center justify-between">
@@ -69,7 +69,7 @@ export default async function ProductionPage() {
                             >
                               {task.assignee.avatar_initials}
                             </div>
-                            <span className="text-xs" style={{ color: "#8C8078" }}>{task.assignee.name}</span>
+                            <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{task.assignee.name}</span>
                           </div>
                         )}
                         {task.due_date && (
@@ -89,7 +89,7 @@ export default async function ProductionPage() {
                   );
                 })}
                 {statusTasks.length === 0 && (
-                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "#E4D8D1", color: "#8C8078" }}>
+                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.45)" }}>
                     Empty
                   </div>
                 )}

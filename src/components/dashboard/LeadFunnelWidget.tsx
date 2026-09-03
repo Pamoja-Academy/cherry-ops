@@ -12,11 +12,11 @@ interface Props {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  cold: "#E4D8D1",
-  warm: "#FCD34D",
+  cold: "#3a3a3a",
+  warm: "#FBBF24",
   proposal: "#C4122F",
-  won: "#16A34A",
-  lost: "#8C8078",
+  won: "#4ADE80",
+  lost: "#555",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -31,37 +31,35 @@ export function LeadFunnelWidget({ data }: Props) {
   const maxCount = Math.max(...data.map((d) => d.count), 1);
 
   return (
-    <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-      <h3 className="font-display font-bold text-base mb-1" style={{ color: "#1A1214" }}>
-        Private-Sector Win Funnel
-      </h3>
-      <p className="text-xs mb-4" style={{ color: "#8C8078" }}>
-        Leads by pipeline stage
+    <div className="border border-white/10 bg-[#111] p-6">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#C4122F]">
+        Growth
       </p>
-      <div className="space-y-3">
+      <h3 className="mt-1 font-display text-xl font-bold text-white">Private-Sector Funnel</h3>
+      <p className="mt-1 text-xs text-white/40">Leads by pipeline stage</p>
+      <div className="mt-6 space-y-3">
         {data.map((item, i) => (
           <div key={item.stage} className="flex items-center gap-3">
-            <div className="w-16 text-xs font-semibold text-right flex-shrink-0" style={{ color: "#8C8078" }}>
+            <div className="w-16 flex-shrink-0 text-right text-[11px] font-semibold uppercase tracking-wider text-white/45">
               {STAGE_LABELS[item.stage]}
             </div>
-            <div className="flex-1 h-7 rounded-lg overflow-hidden" style={{ background: "#F3EBE7" }}>
+            <div className="h-8 flex-1 overflow-hidden bg-black/50">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(item.count / maxCount) * 100}%` }}
-                transition={{ delay: i * 0.1 + 0.3, duration: 0.5, ease: "easeOut" }}
-                className="h-full rounded-lg flex items-center px-2"
-                style={{ background: STAGE_COLORS[item.stage] ?? "#8C8078", minWidth: item.count > 0 ? 28 : 0 }}
+                transition={{ delay: i * 0.1 + 0.2, duration: 0.55, ease: "easeOut" }}
+                className="flex h-full items-center px-2"
+                style={{
+                  background: STAGE_COLORS[item.stage] ?? "#555",
+                  minWidth: item.count > 0 ? 28 : 0,
+                }}
               >
                 {item.count > 0 && (
-                  <span className="text-xs font-bold" style={{ color: item.stage === "cold" ? "#8C8078" : "#fff" }}>
-                    {item.count}
-                  </span>
+                  <span className="text-xs font-bold text-black">{item.count}</span>
                 )}
               </motion.div>
             </div>
-            {item.count === 0 && (
-              <span className="text-xs" style={{ color: "#8C8078" }}>0</span>
-            )}
+            {item.count === 0 && <span className="text-xs text-white/30">0</span>}
           </div>
         ))}
       </div>

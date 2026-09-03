@@ -120,10 +120,11 @@ export async function getJobById(id: number) {
 export async function getDashboardMetrics() {
   const now = new Date().toISOString().split("T")[0];
 
+  // Demo: total paid (seeded payments sit in prior calendar months)
   const revenueResult = await db
     .select({ total: sum(invoices.amount) })
     .from(invoices)
-    .where(and(eq(invoices.status, "paid"), sql`substr(${invoices.paid_date}, 1, 7) = substr(${now}, 1, 7)`))
+    .where(eq(invoices.status, "paid"))
     .get();
 
   const activeJobs = await db

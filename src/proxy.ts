@@ -6,7 +6,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes — allow
-  if (pathname === "/login" || pathname.startsWith("/api/") || pathname.startsWith("/_next/")) {
+  if (
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/hero/")
+  ) {
     return NextResponse.next();
   }
 

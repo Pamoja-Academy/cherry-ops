@@ -13,6 +13,8 @@ import {
   Radio,
   FileText,
   Target,
+  Sparkles,
+  Megaphone,
   Bot,
   Settings,
   LogOut,
@@ -27,6 +29,8 @@ const NAV_ITEMS = [
   { href: "/media", icon: Radio, label: "Media" },
   { href: "/invoices", icon: FileText, label: "Invoices" },
   { href: "/leads", icon: Target, label: "Leads" },
+  { href: "/opportunities", icon: Sparkles, label: "Opportunities" },
+  { href: "/pitches", icon: Megaphone, label: "Pitches" },
   { href: "/autopilot", icon: Bot, label: "Autopilot" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];

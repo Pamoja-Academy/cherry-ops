@@ -1,4 +1,5 @@
 import { db } from "./index";
+import { sqlite } from "./index";
 import {
   users,
   clients,
@@ -14,12 +15,60 @@ import {
   leads,
   activity_events,
   autopilot_actions,
+  opportunities,
+  opportunity_reminders,
 } from "./schema";
+import { briefToOpportunityRow, getDemoBriefs } from "@/lib/opportunity/ingest";
+
+function ensureOpportunityTables() {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS opportunities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      external_id TEXT NOT NULL UNIQUE,
+      source TEXT NOT NULL DEFAULT 'media-ingest',
+      reference TEXT,
+      title TEXT NOT NULL,
+      description TEXT,
+      issuer TEXT,
+      province TEXT,
+      category TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      published_at TEXT,
+      closing_at TEXT,
+      briefing_at TEXT,
+      estimated_value REAL,
+      currency TEXT NOT NULL DEFAULT 'ZAR',
+      source_url TEXT,
+      fit_score INTEGER,
+      score_breakdown TEXT,
+      triage_status TEXT NOT NULL DEFAULT 'pending',
+      triage_note TEXT,
+      triaged_at TEXT,
+      triaged_by INTEGER REFERENCES users(id),
+      ingested_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS opportunity_reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      opportunity_id INTEGER NOT NULL REFERENCES opportunities(id),
+      kind TEXT NOT NULL DEFAULT 'deadline',
+      offset_hours INTEGER NOT NULL,
+      due_at TEXT NOT NULL,
+      sent_at TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      payload TEXT
+    );
+  `);
+}
 
 async function seed() {
   console.log("🌱 Seeding Cherry Ops database...");
 
+  ensureOpportunityTables();
+
   // Clear existing data (FK order)
+  await db.delete(opportunity_reminders);
+  await db.delete(opportunities);
   await db.delete(autopilot_actions);
   await db.delete(activity_events);
   await db.delete(leads);
@@ -211,6 +260,11 @@ async function seed() {
     { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: 5, title: "Lead Nudge: Shoprite Holdings", description: "Shoprite Holdings lead hasn't been updated in 21+ days. Nudge sent to Pheladi Mphahlele.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
   ]);
 
+  // Opportunity Ops — media briefs (scored on ingest)
+  const demoBriefs = getDemoBriefs().map(briefToOpportunityRow);
+  await db.insert(opportunities).values(demoBriefs);
+
+  console.log(`✅ Seeded ${demoBriefs.length} media opportunities`);
   console.log("✅ Seed complete!");
 }
 

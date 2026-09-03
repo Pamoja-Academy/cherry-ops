@@ -13,6 +13,8 @@ import {
   users,
   deliverables,
   client_contacts,
+  opportunities,
+  opportunity_reminders,
 } from "@/db/schema";
 import { eq, and, desc, sql, count, sum, lt, ne } from "drizzle-orm";
 
@@ -298,4 +300,59 @@ export async function getProductionTasks() {
 
 export async function getTeamMembers() {
   return db.select().from(users).orderBy(users.role);
+}
+
+// ── Opportunity Ops ───────────────────────────────────────────────────────────
+
+export async function getOpportunities(showAll = false) {
+  const rows = await db.select().from(opportunities).orderBy(desc(opportunities.closing_at));
+  if (showAll) return rows;
+  return rows.filter((o) => (o.fit_score ?? 0) >= 40 || o.triage_status !== "pending");
+}
+
+export async function getOpportunityById(id: number) {
+  const opp = await db.select().from(opportunities).where(eq(opportunities.id, id)).get();
+  if (!opp) return null;
+
+  const reminders = await db
+    .select()
+    .from(opportunity_reminders)
+    .where(eq(opportunity_reminders.opportunity_id, id))
+    .orderBy(opportunity_reminders.offset_hours);
+
+  const triagedBy = opp.triaged_by
+    ? await db.select().from(users).where(eq(users.id, opp.triaged_by)).get()
+    : null;
+
+  return { ...opp, reminders, triagedBy };
+}
+
+export async function getPitches() {
+  const approved = await db
+    .select()
+    .from(opportunities)
+    .where(eq(opportunities.triage_status, "approved"))
+    .orderBy(opportunities.closing_at);
+
+  const allReminders = await db.select().from(opportunity_reminders);
+
+  return approved.map((o) => ({
+    ...o,
+    reminders: allReminders.filter((r) => r.opportunity_id === o.id),
+  }));
+}
+
+export async function getOpportunityStats(showAll = false) {
+  const rows = await getOpportunities(showAll);
+  const pending = rows.filter((o) => o.triage_status === "pending");
+  return {
+    pipeline: rows.length,
+    new: pending.length,
+    pitch: rows.filter((o) => (o.fit_score ?? 0) >= 70).length,
+    review: rows.filter((o) => {
+      const s = o.fit_score ?? 0;
+      return s >= 40 && s < 70;
+    }).length,
+    approved: rows.filter((o) => o.triage_status === "approved").length,
+  };
 }

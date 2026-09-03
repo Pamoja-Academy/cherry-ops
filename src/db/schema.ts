@@ -174,3 +174,45 @@ export const autopilot_actions = sqliteTable("autopilot_actions", {
   resolved_at: text("resolved_at"),
   resolved_by_id: integer("resolved_by_id").references(() => users.id),
 });
+
+export const opportunities = sqliteTable("opportunities", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  external_id: text("external_id").notNull().unique(),
+  source: text("source").notNull().default("media-ingest"),
+  reference: text("reference"),
+  title: text("title").notNull(),
+  description: text("description"),
+  issuer: text("issuer"),
+  province: text("province"),
+  category: text("category"),
+  status: text("status").notNull().default("open"),
+  published_at: text("published_at"),
+  closing_at: text("closing_at"),
+  briefing_at: text("briefing_at"),
+  estimated_value: real("estimated_value"),
+  currency: text("currency").notNull().default("ZAR"),
+  source_url: text("source_url"),
+  fit_score: integer("fit_score"),
+  score_breakdown: text("score_breakdown"),
+  triage_status: text("triage_status", {
+    enum: ["pending", "approved", "discarded"],
+  }).notNull().default("pending"),
+  triage_note: text("triage_note"),
+  triaged_at: text("triaged_at"),
+  triaged_by: integer("triaged_by").references(() => users.id),
+  ingested_at: text("ingested_at").notNull().default(sql`(datetime('now'))`),
+  updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),
+});
+
+export const opportunity_reminders = sqliteTable("opportunity_reminders", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  opportunity_id: integer("opportunity_id").notNull().references(() => opportunities.id),
+  kind: text("kind", { enum: ["deadline", "briefing"] }).notNull().default("deadline"),
+  offset_hours: integer("offset_hours").notNull(),
+  due_at: text("due_at").notNull(),
+  sent_at: text("sent_at"),
+  status: text("status", {
+    enum: ["pending", "sent", "cancelled"],
+  }).notNull().default("pending"),
+  payload: text("payload"),
+});

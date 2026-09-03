@@ -1,0 +1,70 @@
+"use client";
+
+import { Bell, Search } from "lucide-react";
+import Link from "next/link";
+
+interface TopBarProps {
+  title: string;
+  role: string;
+  pendingCount: number;
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  CEO: "CEO",
+  CREATIVE_DIRECTOR: "Creative Director",
+  PRODUCTION: "Production",
+  MEDIA: "Media",
+  FINANCE: "Finance",
+};
+
+export function TopBar({ title, role, pendingCount }: TopBarProps) {
+  return (
+    <header
+      className="h-14 flex items-center justify-between px-6 border-b flex-shrink-0"
+      style={{ background: "#fff", borderColor: "#E4D8D1" }}
+    >
+      <h1 className="font-display text-lg font-bold" style={{ color: "#1A1214" }}>
+        {title}
+      </h1>
+
+      <div className="flex items-center gap-3">
+        {/* Search (visual) */}
+        <div
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
+          style={{ background: "#F3EBE7", color: "#8C8078" }}
+        >
+          <Search className="w-3.5 h-3.5" />
+          <span className="text-xs">Search…</span>
+          <kbd className="text-xs px-1.5 py-0.5 rounded" style={{ background: "#E4D8D1" }}>⌘K</kbd>
+        </div>
+
+        {/* Role pill */}
+        <div
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+          style={{ background: "#FCE8EC", color: "#7A0B22" }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-cherry" style={{ background: "#C4122F" }} />
+          Viewing as {ROLE_LABELS[role] ?? role}
+        </div>
+
+        {/* Autopilot bell */}
+        <Link href="/autopilot" className="relative">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-cherry-soft"
+            style={{ color: "#8C8078" }}
+          >
+            <Bell className="w-4 h-4" />
+          </div>
+          {pendingCount > 0 && (
+            <span
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-xs flex items-center justify-center font-bold text-white"
+              style={{ background: "#C4122F" }}
+            >
+              {pendingCount > 9 ? "9+" : pendingCount}
+            </span>
+          )}
+        </Link>
+      </div>
+    </header>
+  );
+}

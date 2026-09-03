@@ -109,26 +109,39 @@ export default function LoginPage() {
             transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
           />
 
-          {/* Figurine: Ken Burns + breath — PNG can't limb-animate; motion sells presence */}
+          {/* Dual heroes: Pheladi (WW) + Danny (Wolverine) — same Marvel/DC cover style */}
           <motion.div
             className="absolute inset-[-8%]"
             animate={{
-              scale: [1.08, 1.16, 1.11, 1.18, 1.08],
-              x: [0, -18, 8, -10, 0],
-              y: [0, 10, -6, 14, 0],
+              scale: [1.08, 1.14, 1.1, 1.16, 1.08],
+              x: [0, -14, 6, -8, 0],
+              y: [0, 8, -4, 10, 0],
             }}
             transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           >
             <motion.div
-              className="h-full w-full"
-              animate={{ y: [0, -10, 0, 6, 0] }}
-              transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0"
+              animate={{ opacity: [1, 1, 0, 0, 1] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", times: [0, 0.42, 0.5, 0.92, 1] }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/hero/cherry-ops-hero.png"
-                alt="Red Cherry Interactive"
-                className="h-full w-full object-cover object-[48%_10%]"
+                alt="Pheladi Mphahlele — CEO"
+                className="h-full w-full object-cover object-[48%_12%]"
+                draggable={false}
+              />
+            </motion.div>
+            <motion.div
+              className="absolute inset-0"
+              animate={{ opacity: [0, 0, 1, 1, 0] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", times: [0, 0.42, 0.5, 0.92, 1] }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/hero/cherry-ops-hero-danny.png"
+                alt="Danny van Vuuren — Creative Director"
+                className="h-full w-full object-cover object-[50%_10%]"
                 draggable={false}
               />
             </motion.div>
@@ -189,7 +202,7 @@ export default function LoginPage() {
               <span className="text-[#C4122F]">OPS</span>
             </h1>
             <p className="mt-4 max-w-xs text-sm text-white/40">
-              Agency CRM — clients, jobs, production, media, finance.
+              Agency CRM — led by Pheladi Mphahlele &amp; Danny van Vuuren.
             </p>
           </div>
         </section>

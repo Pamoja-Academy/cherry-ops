@@ -1,6 +1,6 @@
 {
   "crons": [
-    { "path": "/api/autopilot/run", "schedule": "*/15 * * * *" },
+    { "path": "/api/autopilot/run", "schedule": "0 5 * * *" },
     { "path": "/api/opportunities/ingest", "schedule": "0 6 * * *" },
     { "path": "/api/opportunities/reminders", "schedule": "0 7 * * *" }
   ]

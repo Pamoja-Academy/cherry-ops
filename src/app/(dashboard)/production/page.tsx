@@ -54,7 +54,7 @@ export default async function ProductionPage() {
                         borderWidth: overdue ? 1.5 : 1,
                       }}
                     >
-                      <div className="text-sm font-semibold mb-1" style={{ color: overdue ? "#C4122F" : "#1A1214" }}>
+                      <div className="text-sm font-semibold mb-1" style={{ color: overdue ? "#C4122F" : "#F5F5F5" }}>
                         {task.title}
                       </div>
                       <div className="text-xs mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>

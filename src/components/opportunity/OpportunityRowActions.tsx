@@ -12,23 +12,33 @@ interface Props {
 export function OpportunityRowActions({ opportunityId }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<"approve" | "discard" | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function triage(status: "approved" | "discarded") {
     setLoading(status === "approved" ? "approve" : "discard");
+    setError(null);
     try {
-      await fetch(`/api/opportunities/${opportunityId}`, {
+      const res = await fetch(`/api/opportunities/${opportunityId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ triage_status: status }),
       });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "Triage failed");
+      }
       router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Triage failed");
     } finally {
       setLoading(null);
     }
   }
 
   return (
-    <div className="flex gap-1.5 mt-3">
+    <div className="mt-3 space-y-1.5">
+      {error && <p className="text-[10px] text-[#fecaca]">{error}</p>}
+      <div className="flex gap-1.5">
       <button
         onClick={(e) => {
           e.preventDefault();
@@ -58,6 +68,7 @@ export function OpportunityRowActions({ opportunityId }: Props) {
       >
         Details →
       </Link>
+      </div>
     </div>
   );
 }

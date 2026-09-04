@@ -1,23 +1,67 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { autopilot_actions, activity_events, jobs } from "@/db/schema";
+import { autopilot_actions, activity_events, jobs, invoices, payments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const APPROVER_ROLES = new Set(["CEO", "FINANCE"]);
 
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+type Action = typeof autopilot_actions.$inferSelect;
+
 // Approving a risky action executes its real-world effect under guardrails.
-async function executeApprovedAction(action: typeof autopilot_actions.$inferSelect) {
+// Sync calls only — better-sqlite3 transactions cannot be async.
+function executeApprovedAction(tx: Tx, action: Action) {
+  const today = new Date().toISOString().split("T")[0];
+
   if (action.type === "mark_job_complete" && action.entity_type === "job" && action.entity_id) {
-    await db.update(jobs).set({ stage: "complete" }).where(eq(jobs.id, action.entity_id));
+    tx.update(jobs).set({ stage: "complete" }).where(eq(jobs.id, action.entity_id)).run();
+    return;
   }
-  if (action.type === "send_invoice_reminder" && action.entity_type === "invoice" && action.entity_id) {
-    await db.insert(activity_events).values({
+
+  if (action.entity_type !== "invoice" || !action.entity_id) return;
+  const invoice = tx.select().from(invoices).where(eq(invoices.id, action.entity_id)).get();
+  if (!invoice) return;
+
+  if (action.type === "send_invoice_reminder") {
+    tx.insert(activity_events).values({
       entity_type: "invoice",
-      entity_id: action.entity_id,
+      entity_id: invoice.id,
       type: "invoice_reminder_sent",
-      description: `📧 Overdue reminder queued for delivery (approved via Autopilot)`,
-    });
+      description: `📧 Overdue reminder for ${invoice.number} queued for delivery (approved via Autopilot)`,
+    }).run();
+  }
+
+  if (action.type === "send_invoice" && invoice.status === "draft") {
+    tx.update(invoices)
+      .set({ status: "sent", issued_date: invoice.issued_date ?? today })
+      .where(eq(invoices.id, invoice.id))
+      .run();
+    tx.insert(activity_events).values({
+      entity_type: "invoice",
+      entity_id: invoice.id,
+      type: "invoice_sent",
+      description: `📧 Invoice ${invoice.number} (${fmt(invoice.amount)}) sent to client (approved via Autopilot)`,
+    }).run();
+  }
+
+  if (action.type === "mark_invoice_paid" && invoice.status !== "paid") {
+    tx.update(invoices).set({ status: "paid", paid_date: today }).where(eq(invoices.id, invoice.id)).run();
+    tx.insert(payments).values({
+      invoice_id: invoice.id,
+      amount: invoice.amount,
+      method: "EFT",
+      date: today,
+    }).run();
+    tx.insert(activity_events).values({
+      entity_type: "invoice",
+      entity_id: invoice.id,
+      type: "invoice_paid",
+      description: `✅ Invoice ${invoice.number} marked paid — ${fmt(invoice.amount)} settled (approved via Autopilot)`,
+    }).run();
   }
 }
 
@@ -60,26 +104,31 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const userId = Number(session.user.id);
+
   try {
-    if (status === "approved") {
-      await executeApprovedAction(action);
-    }
+    // Status flip + side effects are atomic: either the whole approval lands or none of it.
+    db.transaction((tx) => {
+      if (status === "approved") {
+        executeApprovedAction(tx, action);
+      }
 
-    await db
-      .update(autopilot_actions)
-      .set({
-        status,
-        resolved_at: new Date().toISOString(),
-        resolved_by_id: Number(session.user.id),
-      })
-      .where(eq(autopilot_actions.id, id));
+      tx.update(autopilot_actions)
+        .set({
+          status,
+          resolved_at: new Date().toISOString(),
+          resolved_by_id: userId,
+        })
+        .where(eq(autopilot_actions.id, id))
+        .run();
 
-    await db.insert(activity_events).values({
-      entity_type: action.entity_type ?? "autopilot",
-      entity_id: action.entity_id,
-      type: status === "approved" ? "autopilot_approved" : "autopilot_rejected",
-      description: `🤖 Autopilot: "${action.title}" ${status} by ${session.user.name}`,
-      actor_id: Number(session.user.id),
+      tx.insert(activity_events).values({
+        entity_type: action.entity_type ?? "autopilot",
+        entity_id: action.entity_id,
+        type: status === "approved" ? "autopilot_approved" : "autopilot_rejected",
+        description: `🤖 Autopilot: "${action.title}" ${status} by ${session.user.name}`,
+        actor_id: userId,
+      }).run();
     });
 
     return NextResponse.json({ success: true });

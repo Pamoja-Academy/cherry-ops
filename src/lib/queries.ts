@@ -14,7 +14,7 @@ import {
   deliverables,
   client_contacts,
 } from "@/db/schema";
-import { eq, and, desc, sql, count, sum, ne } from "drizzle-orm";
+import { eq, and, desc, sql, count, sum, lt, ne } from "drizzle-orm";
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 
@@ -132,10 +132,22 @@ export async function getDashboardMetrics() {
     .where(ne(jobs.stage, "complete"))
     .get();
 
+  const overdueJobs = await db
+    .select({ cnt: count() })
+    .from(jobs)
+    .where(and(ne(jobs.stage, "complete"), lt(jobs.due_date!, now)))
+    .get();
+
   const overdueInvoices = await db
     .select({ cnt: count(), total: sum(invoices.amount) })
     .from(invoices)
     .where(eq(invoices.status, "overdue"))
+    .get();
+
+  const outstanding = await db
+    .select({ total: sum(invoices.amount) })
+    .from(invoices)
+    .where(sql`${invoices.status} IN ('sent','overdue')`)
     .get();
 
   const totalBuys = await db.select({ cnt: count() }).from(media_buys).where(eq(media_buys.status, "live")).get();
@@ -153,14 +165,25 @@ export async function getDashboardMetrics() {
     .where(sql`${leads.status} IN ('cold','warm','proposal')`)
     .get();
 
+  const wonLeads = await db.select({ cnt: count() }).from(leads).where(eq(leads.status, "won")).get();
+  const decidedLeads = await db
+    .select({ cnt: count() })
+    .from(leads)
+    .where(sql`${leads.status} IN ('won','lost')`)
+    .get();
+
   return {
     revenue: Number(revenueResult?.total ?? 0),
+    revenueTarget: 1_500_000,
     activeJobs: activeJobs?.cnt ?? 0,
+    overdueJobs: overdueJobs?.cnt ?? 0,
     overdueCount: overdueInvoices?.cnt ?? 0,
     overdueTotal: Number(overdueInvoices?.total ?? 0),
+    outstandingTotal: Number(outstanding?.total ?? 0),
     mediaPacingPct: totalBuys?.cnt ? Math.round(((okBuys?.cnt ?? 0) / totalBuys.cnt) * 100) : 100,
     pendingApprovals: pendingActions?.cnt ?? 0,
     privateLeadsInPipeline: privateLeads?.cnt ?? 0,
+    privateWinRate: decidedLeads?.cnt ? Math.round(((wonLeads?.cnt ?? 0) / decidedLeads.cnt) * 100) : null,
   };
 }
 
@@ -297,4 +320,8 @@ export async function getProductionTasks() {
 
 export async function getTeamMembers() {
   return db.select().from(users).orderBy(users.role);
+}
+
+export async function getStudioResources() {
+  return db.select().from(studio_resources).orderBy(studio_resources.name);
 }

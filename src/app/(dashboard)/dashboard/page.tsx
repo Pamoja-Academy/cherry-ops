@@ -33,24 +33,25 @@ export default async function DashboardPage() {
           icon="trending-up"
           color="#16A34A"
           bg="#DCFCE7"
-          subtitle="Paid invoices"
+          subtitle={`of ${fmt(metrics.revenueTarget)} target`}
         />
         <MetricPulse
           label="Active Jobs"
           value={String(metrics.activeJobs)}
           icon="briefcase"
-          color="#1D4ED8"
-          bg="#DBEAFE"
-          subtitle="In production"
+          color={metrics.overdueJobs > 0 ? "#D97706" : "#1D4ED8"}
+          bg={metrics.overdueJobs > 0 ? "#FEF3C7" : "#DBEAFE"}
+          subtitle={metrics.overdueJobs > 0 ? `${metrics.overdueJobs} overdue` : "All on schedule"}
         />
         <MetricPulse
-          label="Overdue Invoices"
-          value={metrics.overdueCount > 0 ? `${metrics.overdueCount} · ${fmt(metrics.overdueTotal)}` : "None"}
+          label="Outstanding Invoices"
+          value={fmt(metrics.outstandingTotal)}
           icon="alert"
           color={metrics.overdueCount > 0 ? "#C4122F" : "#16A34A"}
           bg={metrics.overdueCount > 0 ? "#FCE8EC" : "#DCFCE7"}
-          subtitle={metrics.overdueCount > 0 ? "Action required" : "All clear"}
+          subtitle={metrics.overdueCount > 0 ? `${metrics.overdueCount} overdue · ${fmt(metrics.overdueTotal)}` : "Nothing overdue"}
           urgent={metrics.overdueCount > 0}
+          href="/invoices"
         />
         <MetricPulse
           label="Media Pacing Health"
@@ -59,6 +60,7 @@ export default async function DashboardPage() {
           color={metrics.mediaPacingPct >= 80 ? "#16A34A" : "#D97706"}
           bg={metrics.mediaPacingPct >= 80 ? "#DCFCE7" : "#FEF3C7"}
           subtitle="Live buys on track"
+          href="/media"
         />
         <MetricPulse
           label="Pending Approvals"
@@ -68,14 +70,16 @@ export default async function DashboardPage() {
           bg={metrics.pendingApprovals > 0 ? "#FCE8EC" : "#DCFCE7"}
           subtitle="Autopilot queue"
           urgent={metrics.pendingApprovals > 0}
+          href="/autopilot"
         />
         <MetricPulse
-          label="Private-Sector Leads"
-          value={String(metrics.privateLeadsInPipeline)}
+          label="Private-Sector Win Rate"
+          value={metrics.privateWinRate !== null ? `${metrics.privateWinRate}%` : "—"}
           icon="target"
           color="#7A0B22"
           bg="#FCE8EC"
-          subtitle="In pipeline"
+          subtitle={`${metrics.privateLeadsInPipeline} leads in pipeline`}
+          href="/leads"
         />
       </div>
 

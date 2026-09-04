@@ -267,46 +267,65 @@ export default function LoginPage() {
             />
           ))}
 
-          {/* Clickable cast strip — interactive portraits */}
-          <div className="absolute inset-x-0 bottom-[7.5rem] z-20 flex items-end justify-center gap-2 px-6 xl:bottom-36 xl:gap-2.5">
-            {HERO_SLIDES.map((slide, i) => {
-              const selected = heroIndex === i;
-              return (
-                <button
-                  key={slide.hero}
-                  type="button"
-                  aria-label={`Show ${slide.name}`}
-                  aria-pressed={selected}
-                  onClick={() => selectSlide(i, true)}
-                  className="group relative overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
-                  style={{
-                    width: selected ? 56 : 44,
-                    height: selected ? 72 : 56,
-                    borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
-                    boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={slide.hero}
-                    alt=""
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          {/* Cast selector — stable arrows + static thumbnails (never drift under motion) */}
+          <div className="absolute inset-x-0 bottom-[7.5rem] z-20 flex items-end justify-center gap-3 px-6 xl:bottom-36">
+            <button
+              type="button"
+              aria-label="Previous hero"
+              onClick={() =>
+                selectSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, true)
+              }
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+            >
+              ‹
+            </button>
+            <div className="flex items-end justify-center gap-2 xl:gap-2.5">
+              {HERO_SLIDES.map((slide, i) => {
+                const selected = heroIndex === i;
+                return (
+                  <button
+                    key={slide.hero}
+                    type="button"
+                    aria-label={`Show ${slide.name}`}
+                    aria-pressed={selected}
+                    onClick={() => selectSlide(i, true)}
+                    className="group relative block overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
                     style={{
-                      objectPosition: i === 0 ? "50% 35%" : slide.focus,
+                      width: selected ? 56 : 44,
+                      height: selected ? 72 : 56,
+                      borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
+                      boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
+                      flex: "none",
                     }}
-                    draggable={false}
-                  />
-                  <span
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background: selected
-                        ? "transparent"
-                        : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
-                    }}
-                  />
-                </button>
-              );
-            })}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slide.hero}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
+                      draggable={false}
+                    />
+                    <span
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background: selected
+                          ? "transparent"
+                          : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
+                      }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              aria-label="Next hero"
+              onClick={() => selectSlide((heroIndex + 1) % HERO_SLIDES.length, true)}
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+            >
+              ›
+            </button>
           </div>
 
           <div className="absolute inset-x-0 bottom-0 z-10 p-8 xl:p-10">

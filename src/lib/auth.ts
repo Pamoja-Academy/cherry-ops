@@ -30,6 +30,11 @@ declare module "next-auth/jwt" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Must stay in sync with the secret resolution in src/proxy.ts
+  secret:
+    process.env.AUTH_SECRET ??
+    process.env.NEXTAUTH_SECRET ??
+    "cherry-ops-secret-2026-contest",
   providers: [
     Credentials({
       name: "credentials",

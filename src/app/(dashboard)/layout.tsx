@@ -4,20 +4,6 @@ import { Sidebar } from "@/components/shell/Sidebar";
 import { TopBar } from "@/components/shell/TopBar";
 import { getPendingAutopilotCount } from "@/lib/queries";
 
-// Page title map
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/clients": "Clients",
-  "/jobs": "Jobs & Campaigns",
-  "/production": "Production Board",
-  "/studio": "Studio Capacity",
-  "/media": "Media Buys",
-  "/invoices": "Invoice Pipeline",
-  "/leads": "Private-Sector Pipeline",
-  "/autopilot": "Autopilot",
-  "/settings": "Settings",
-};
-
 export default async function DashboardLayout({
   children,
 }: LayoutProps<"/">) {
@@ -37,10 +23,7 @@ export default async function DashboardLayout({
         pendingCount={pendingCount}
       />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <TopBarWrapper
-          role={session.user.role}
-          pendingCount={pendingCount}
-        />
+        <TopBar role={session.user.role} pendingCount={pendingCount} />
         <main
           className="flex-1 overflow-y-auto p-6"
           style={{ background: "#FBF6F2" }}
@@ -49,16 +32,5 @@ export default async function DashboardLayout({
         </main>
       </div>
     </div>
-  );
-}
-
-// Server component wrapper that figures out title from URL
-function TopBarWrapper({ role, pendingCount }: { role: string; pendingCount: number }) {
-  return (
-    <TopBar
-      title="Cherry Ops"
-      role={role}
-      pendingCount={pendingCount}
-    />
   );
 }

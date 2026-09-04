@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4 theme — exposes brand tokens as utilities (text-cherry, bg-wash, …) ── */
+@theme {
+  --color-cherry: #C4122F;
+  --color-cherry-hover: #9E0E26;
+  --color-cherry-soft: #FCE8EC;
+  --color-cherry-mark: #7A0B22;
+  --color-ink: #1A1214;
+  --color-muted: #8C8078;
+  --color-wash: #F3EBE7;
+  --color-line: #E4D8D1;
+  --color-background: #FBF6F2;
+}
+
 /* ── Cherry Ops Design Tokens ──────────────────────────────────────────────── */
 :root {
   /* Brand */

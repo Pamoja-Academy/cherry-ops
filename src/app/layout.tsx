@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Cherry Ops — Red Cherry Interactive",
   description: "Agency Operating System for Red Cherry Interactive",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#C4122F",
 };
 
 export default function RootLayout({

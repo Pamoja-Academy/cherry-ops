@@ -1,6 +1,7 @@
 import { getClients } from "@/lib/queries";
 import Link from "next/link";
-import { Building2, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { AddClientButton } from "@/components/clients/AddClientButton";
 
 const SECTOR_COLORS: Record<string, string> = {
   "Financial Services": "#1D4ED8",
@@ -24,11 +25,12 @@ export default async function ClientsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>Clients</h2>
           <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{clients.length} accounts</p>
         </div>
+        <AddClientButton />
       </div>
 
       <div className="rounded-xl border overflow-hidden" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>

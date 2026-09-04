@@ -2,6 +2,7 @@ import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
+import { JobStageSelect } from "@/components/jobs/JobStageSelect";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);
@@ -34,9 +35,9 @@ export default async function JobDetailPage(props: PageProps<"/jobs/[id]">) {
 
       {/* Header */}
       <div className="rounded-xl border p-6" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
               <span className="text-xs px-2 py-0.5 rounded-full font-bold"
                 style={{ background: `${STAGE_COLORS[job.stage]}15`, color: STAGE_COLORS[job.stage] }}>
                 {job.stage.toUpperCase()}
@@ -44,6 +45,11 @@ export default async function JobDetailPage(props: PageProps<"/jobs/[id]">) {
               <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.45)" }}>
                 {job.type}
               </span>
+              <JobStageSelect
+                jobId={job.id}
+                stage={job.stage as "brief" | "production" | "review" | "delivery" | "complete"}
+                compact
+              />
             </div>
             <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>{job.title}</h2>
             <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>

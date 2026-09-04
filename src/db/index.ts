@@ -74,6 +74,15 @@ sqlite.exec(`
     status TEXT NOT NULL DEFAULT 'pending',
     payload TEXT
   );
+  CREATE TABLE IF NOT EXISTS workspace_settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agency_name TEXT NOT NULL DEFAULT 'Red Cherry Interactive',
+    headquarters TEXT NOT NULL DEFAULT 'Rivonia, Sandton, Johannesburg',
+    founded TEXT NOT NULL DEFAULT '1996 · 30 Years',
+    certification TEXT NOT NULL DEFAULT 'Level 1 BBBEE · Female-Owned',
+    services TEXT NOT NULL DEFAULT 'Strategy · Creative · Media · Production · PR · Digital · Activations',
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 export const db = drizzle(sqlite, { schema });

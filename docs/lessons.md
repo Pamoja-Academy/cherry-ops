@@ -13,3 +13,4 @@
 - Team wallpaper must composite from all six locked individual hero PNGs + red-cherry-mark.png as references; verify every named person (esp. Robbyn) is present and recognizable before install/deploy — never ship a hallucinated lineup.
 - If `/` always redirects to `/login`, post-signIn must NOT `router.push("/")` — send users to role home or they bounce straight back to login and look "unable to sign in".
 - Always give the user the full absolute URL (e.g. `https://cherry-ops-hazel.vercel.app/login`) — never bare paths like `/login` or "hard-refresh login"; relative links take them nowhere in chat.
+- Red Cherry **Interactive** means writable CRM flows (create/edit/save), not seeded read-only screens — Settings and core entities must persist changes.

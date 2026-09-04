@@ -32,7 +32,7 @@ const DEMO_ROLES = [
     password: "cherry-ceo-2026",
     initials: "PM",
     name: "Pheladi Mphahlele",
-    hero: "/hero/cherry-ops-hero.png",
+    hero: "/hero/cherry-ops-hero.jpg",
     focus: "48% 12%",
   },
   {
@@ -41,7 +41,7 @@ const DEMO_ROLES = [
     password: "cherry-cd-2026",
     initials: "DV",
     name: "Danny van Vuuren",
-    hero: "/hero/cherry-ops-hero-danny.png",
+    hero: "/hero/cherry-ops-hero-danny.jpg",
     focus: "50% 10%",
   },
   {
@@ -50,7 +50,7 @@ const DEMO_ROLES = [
     password: "cherry-dir-2026",
     initials: "JM",
     name: "Jenna Murray-Smith",
-    hero: "/hero/cherry-ops-hero-jenna.png",
+    hero: "/hero/cherry-ops-hero-jenna.jpg",
     focus: "50% 16%",
   },
   {
@@ -59,7 +59,7 @@ const DEMO_ROLES = [
     password: "cherry-prod-2026",
     initials: "RB",
     name: "Robbyn Burger",
-    hero: "/hero/cherry-ops-hero-robbyn.png",
+    hero: "/hero/cherry-ops-hero-robbyn.jpg",
     focus: "50% 14%",
   },
   {
@@ -68,7 +68,7 @@ const DEMO_ROLES = [
     password: "cherry-media-2026",
     initials: "FD",
     name: "Faye Dawood",
-    hero: "/hero/cherry-ops-hero-faye.png",
+    hero: "/hero/cherry-ops-hero-faye.jpg",
     focus: "50% 18%",
   },
   {
@@ -77,7 +77,7 @@ const DEMO_ROLES = [
     password: "cherry-fin-2026",
     initials: "AF",
     name: "Aliki Frantzeskos",
-    hero: "/hero/cherry-ops-hero-aliki.png",
+    hero: "/hero/cherry-ops-hero-aliki.jpg",
     focus: "50% 16%",
   },
 ];
@@ -85,7 +85,7 @@ const DEMO_ROLES = [
 const TEAM_SLIDE = {
   label: "Leadership",
   name: "Red Cherry Cast",
-  hero: "/hero/cherry-ops-team-wallpaper.png",
+  hero: "/hero/cherry-ops-team-wallpaper.jpg",
   focus: "50% 40%",
 };
 

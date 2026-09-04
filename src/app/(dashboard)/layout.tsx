@@ -17,14 +17,15 @@ export default async function DashboardLayout({
   return (
     <div className="relative flex h-screen overflow-hidden">
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.14]"
+        className="pointer-events-none absolute inset-0 opacity-[0.42]"
         style={{
           backgroundImage: "url(/hero/cherry-ops-team-wallpaper.png)",
           backgroundSize: "cover",
           backgroundPosition: "center center",
         }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-[#080808]/88" />
+      {/* Keep CRM readable without wiping the team lineup */}
+      <div className="pointer-events-none absolute inset-0 bg-[#080808]/72" />
       <div className="relative z-10 flex h-full w-full">
         <Sidebar
           role={session.user.role}

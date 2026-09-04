@@ -11,3 +11,5 @@
 - Opportunity Ops inside Cherry Ops must use media lexicon only — no BICS lab scorer gates, lab anchors, or industrial exclude patterns from other clients.
 - Never regenerate or replace locked hero art from memory/old prompts — only use the art-direction locks and the currently approved files on disk / in Cursor assets; if unsure, stop and report rather than inventing.
 - Team wallpaper must composite from all six locked individual hero PNGs + red-cherry-mark.png as references; verify every named person (esp. Robbyn) is present and recognizable before install/deploy — never ship a hallucinated lineup.
+- If `/` always redirects to `/login`, post-signIn must NOT `router.push("/")` — send users to role home or they bounce straight back to login and look "unable to sign in".
+- Always give the user the full absolute URL (e.g. `https://cherry-ops-hazel.vercel.app/login`) — never bare paths like `/login` or "hard-refresh login"; relative links take them nowhere in chat.

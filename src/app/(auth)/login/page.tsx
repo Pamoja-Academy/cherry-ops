@@ -1,10 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
+
+function roleHome(role: string | undefined): string {
+  switch (role) {
+    case "CEO":
+      return "/dashboard";
+    case "CREATIVE_DIRECTOR":
+      return "/jobs";
+    case "DIRECTOR":
+      return "/clients";
+    case "PRODUCTION":
+      return "/production";
+    case "MEDIA":
+      return "/media";
+    case "FINANCE":
+      return "/invoices";
+    default:
+      return "/dashboard";
+  }
+}
 
 const DEMO_ROLES = [
   {
@@ -95,7 +114,9 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Invalid credentials. Please try again.");
     } else {
-      router.push("/");
+      // `/` always redirects to /login — never push "/" after sign-in
+      const session = await getSession();
+      router.push(roleHome(session?.user?.role));
       router.refresh();
     }
   }

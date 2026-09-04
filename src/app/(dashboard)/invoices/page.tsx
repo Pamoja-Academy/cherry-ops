@@ -1,4 +1,6 @@
 import { getInvoices } from "@/lib/queries";
+import { InvoiceActions } from "@/components/invoices/InvoiceActions";
+import Link from "next/link";
 
 const STATUSES = ["draft", "sent", "overdue", "paid"] as const;
 type InvStatus = typeof STATUSES[number];
@@ -49,11 +51,11 @@ export default async function InvoicesPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-        <table className="w-full">
+      <div className="rounded-xl border overflow-x-auto" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+        <table className="w-full min-w-[880px]">
           <thead>
             <tr style={{ borderBottom: "1px solid #E4D8D1" }}>
-              {["Number", "Client", "Job", "Amount", "Status", "Due Date", "Overdue"].map((h) => (
+              {["Number", "Client", "Job", "Amount", "Status", "Due Date", "Overdue", "Actions"].map((h) => (
                 <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#8C8078" }}>
                   {h}
                 </th>
@@ -69,10 +71,22 @@ export default async function InvoicesPage() {
                     <span className="text-sm font-semibold" style={{ color: "#1A1214" }}>{inv.number}</span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "#1A1214" }}>{inv.client?.name ?? "—"}</span>
+                    {inv.client ? (
+                      <Link href={`/clients/${inv.client.id}`} className="text-sm hover:underline" style={{ color: "#1A1214" }}>
+                        {inv.client.name}
+                      </Link>
+                    ) : (
+                      <span className="text-sm" style={{ color: "#8C8078" }}>—</span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "#8C8078" }}>{inv.job?.title ?? "—"}</span>
+                    {inv.job ? (
+                      <Link href={`/jobs/${inv.job.id}`} className="text-sm hover:underline" style={{ color: "#8C8078" }}>
+                        {inv.job.title}
+                      </Link>
+                    ) : (
+                      <span className="text-sm" style={{ color: "#8C8078" }}>—</span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     <span className="text-sm font-bold" style={{ color: "#1A1214" }}>{fmt(inv.amount)}</span>
@@ -94,6 +108,9 @@ export default async function InvoicesPage() {
                         {inv.daysOverdue}d
                       </span>
                     ) : <span style={{ color: "#8C8078" }}>—</span>}
+                  </td>
+                  <td className="px-5 py-4">
+                    <InvoiceActions invoiceId={inv.id} status={inv.status} />
                   </td>
                 </tr>
               );

@@ -1,19 +1,41 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import {
+  TrendingUp,
+  Briefcase,
+  TriangleAlert,
+  Radio,
+  Bot,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
+
+// Server Components can't pass component references across the boundary,
+// so icons are selected by name and resolved client-side.
+const ICONS = {
+  "trending-up": TrendingUp,
+  briefcase: Briefcase,
+  alert: TriangleAlert,
+  radio: Radio,
+  bot: Bot,
+  target: Target,
+} satisfies Record<string, LucideIcon>;
+
+export type MetricIcon = keyof typeof ICONS;
 
 interface MetricPulseProps {
   label: string;
   value: string;
-  icon: LucideIcon;
+  icon: MetricIcon;
   color: string;
   bg: string;
   subtitle?: string;
   urgent?: boolean;
 }
 
-export function MetricPulse({ label, value, icon: Icon, color, bg, subtitle, urgent }: MetricPulseProps) {
+export function MetricPulse({ label, value, icon, color, bg, subtitle, urgent }: MetricPulseProps) {
+  const Icon = ICONS[icon];
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -36,7 +58,7 @@ export function MetricPulse({ label, value, icon: Icon, color, bg, subtitle, urg
           className="w-9 h-9 rounded-lg flex items-center justify-center"
           style={{ background: bg }}
         >
-          <Icon className="w-4.5 h-4.5" style={{ color, width: 18, height: 18 }} />
+          <Icon style={{ color, width: 18, height: 18 }} />
         </div>
       </div>
       <div className="text-2xl font-bold mb-0.5" style={{ color: "#1A1214", fontFamily: "inherit" }}>

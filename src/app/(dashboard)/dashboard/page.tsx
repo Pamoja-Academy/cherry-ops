@@ -2,7 +2,6 @@ import { getDashboardMetrics, getActivityFeed, getLeadFunnel } from "@/lib/queri
 import { MetricPulse } from "@/components/dashboard/MetricPulse";
 import { ActivityFeedWidget } from "@/components/dashboard/ActivityFeedWidget";
 import { LeadFunnelWidget } from "@/components/dashboard/LeadFunnelWidget";
-import { TrendingUp, Briefcase, AlertTriangle, Radio, Bot, Target } from "lucide-react";
 
 export default async function DashboardPage() {
   const [metrics, feed, funnel] = await Promise.all([
@@ -31,7 +30,7 @@ export default async function DashboardPage() {
         <MetricPulse
           label="Revenue This Month"
           value={fmt(metrics.revenue)}
-          icon={TrendingUp}
+          icon="trending-up"
           color="#16A34A"
           bg="#DCFCE7"
           subtitle="Paid invoices"
@@ -39,7 +38,7 @@ export default async function DashboardPage() {
         <MetricPulse
           label="Active Jobs"
           value={String(metrics.activeJobs)}
-          icon={Briefcase}
+          icon="briefcase"
           color="#1D4ED8"
           bg="#DBEAFE"
           subtitle="In production"
@@ -47,7 +46,7 @@ export default async function DashboardPage() {
         <MetricPulse
           label="Overdue Invoices"
           value={metrics.overdueCount > 0 ? `${metrics.overdueCount} · ${fmt(metrics.overdueTotal)}` : "None"}
-          icon={AlertTriangle}
+          icon="alert"
           color={metrics.overdueCount > 0 ? "#C4122F" : "#16A34A"}
           bg={metrics.overdueCount > 0 ? "#FCE8EC" : "#DCFCE7"}
           subtitle={metrics.overdueCount > 0 ? "Action required" : "All clear"}
@@ -56,7 +55,7 @@ export default async function DashboardPage() {
         <MetricPulse
           label="Media Pacing Health"
           value={`${metrics.mediaPacingPct}%`}
-          icon={Radio}
+          icon="radio"
           color={metrics.mediaPacingPct >= 80 ? "#16A34A" : "#D97706"}
           bg={metrics.mediaPacingPct >= 80 ? "#DCFCE7" : "#FEF3C7"}
           subtitle="Live buys on track"
@@ -64,7 +63,7 @@ export default async function DashboardPage() {
         <MetricPulse
           label="Pending Approvals"
           value={String(metrics.pendingApprovals)}
-          icon={Bot}
+          icon="bot"
           color={metrics.pendingApprovals > 0 ? "#C4122F" : "#16A34A"}
           bg={metrics.pendingApprovals > 0 ? "#FCE8EC" : "#DCFCE7"}
           subtitle="Autopilot queue"
@@ -73,7 +72,7 @@ export default async function DashboardPage() {
         <MetricPulse
           label="Private-Sector Leads"
           value={String(metrics.privateLeadsInPipeline)}
-          icon={Target}
+          icon="target"
           color="#7A0B22"
           bg="#FCE8EC"
           subtitle="In pipeline"

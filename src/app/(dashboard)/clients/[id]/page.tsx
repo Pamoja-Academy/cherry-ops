@@ -61,8 +61,13 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold" style={{ color: "#1A1214" }}>{fmt(client.totalBilled)}</div>
+            <div className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>{fmt(client.totalBilled)}</div>
             <div className="text-xs" style={{ color: "#8C8078" }}>Total billed</div>
+            {client.outstanding > 0 && (
+              <div className="mt-1 text-sm font-bold" style={{ color: "#C4122F" }}>
+                {fmt(client.outstanding)} outstanding
+              </div>
+            )}
           </div>
         </div>
 
@@ -85,6 +90,52 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Contacts */}
+        <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+          <h3 className="font-display font-bold mb-4" style={{ color: "#1A1214" }}>Contacts ({client.contacts.length})</h3>
+          <div className="space-y-2">
+            {client.contacts.length === 0 && <p className="text-sm" style={{ color: "#8C8078" }}>No contacts on record.</p>}
+            {client.contacts.map((c) => (
+              <div key={c.id} className="flex items-center gap-3 p-3 rounded-lg border" style={{ borderColor: "#F3EBE7" }}>
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style={{ background: c.is_primary ? "#FCE8EC" : "#F3EBE7", color: c.is_primary ? "#7A0B22" : "#8C8078" }}
+                >
+                  {c.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium flex items-center gap-2" style={{ color: "#1A1214" }}>
+                    {c.name}
+                    {c.is_primary === true && (
+                      <span className="text-xs px-1.5 py-0.5 rounded-full font-bold" style={{ background: "#FCE8EC", color: "#7A0B22" }}>
+                        Primary
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs truncate" style={{ color: "#8C8078" }}>
+                    {[c.role, c.email].filter(Boolean).join(" · ")}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* BD notes */}
+        <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+          <h3 className="font-display font-bold mb-4" style={{ color: "#1A1214" }}>Account Notes</h3>
+          {client.notes ? (
+            <p className="text-sm leading-relaxed" style={{ color: "#1A1214" }}>{client.notes}</p>
+          ) : (
+            <p className="text-sm" style={{ color: "#8C8078" }}>No notes captured yet.</p>
+          )}
+          {client.is_private_sector && (
+            <div className="mt-4 pt-4 border-t text-xs" style={{ borderColor: "#F3EBE7", color: "#7A0B22" }}>
+              Private-sector account — part of the growth portfolio. Keep BD history current after every touchpoint.
+            </div>
+          )}
+        </div>
+
         {/* Jobs */}
         <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
           <h3 className="font-display font-bold mb-4" style={{ color: "#1A1214" }}>Jobs ({client.jobs.length})</h3>

@@ -107,8 +107,8 @@ export function ClientFilter({ clients }: { clients: ClientRow[] }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-        <table className="w-full">
+      <div className="rounded-xl border overflow-x-auto" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+        <table className="w-full min-w-[760px]">
           <thead>
             <tr style={{ borderBottom: "1px solid #E4D8D1" }}>
               {["Client", "Sector", "Account Manager", "Active Jobs", "Outstanding", ""].map((h) => (

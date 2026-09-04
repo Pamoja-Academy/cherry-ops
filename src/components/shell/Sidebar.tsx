@@ -19,7 +19,7 @@ import {
   CircleDot,
 } from "lucide-react";
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/clients", icon: Users, label: "Clients" },
   { href: "/jobs", icon: Briefcase, label: "Jobs" },
@@ -52,7 +52,7 @@ export function Sidebar({ role, name, initials, pendingCount }: SidebarProps) {
 
   return (
     <div
-      className="flex flex-col h-full w-56 flex-shrink-0"
+      className="hidden lg:flex flex-col h-full w-56 flex-shrink-0"
       style={{ background: "#1A1214" }}
     >
       {/* Logo */}
@@ -77,7 +77,7 @@ export function Sidebar({ role, name, initials, pendingCount }: SidebarProps) {
           const Icon = item.icon;
 
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}>
               <motion.div
                 whileHover={{ x: 2 }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors relative"

@@ -20,8 +20,8 @@ export default async function MediaPage() {
         <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>{buys.length} placements</p>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-        <table className="w-full">
+      <div className="rounded-xl border overflow-x-auto" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+        <table className="w-full min-w-[820px]">
           <thead>
             <tr style={{ borderBottom: "1px solid #E4D8D1" }}>
               {["Buy", "Channel / Placement", "Budget", "Spent", "Pacing", "Status", "Period"].map((h) => (

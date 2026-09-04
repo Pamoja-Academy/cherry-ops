@@ -92,7 +92,7 @@ export default function LoginPage() {
             Cherry<br />Ops
           </h1>
           <p className="text-white/70 text-lg font-light leading-relaxed max-w-xs">
-            Red Cherry Interactive's Agency Operating System. Built for 30 years of excellence.
+            Red Cherry Interactive&rsquo;s Agency Operating System. Built for 30 years of excellence.
           </p>
         </motion.div>
         {/* Bottom tagline */}

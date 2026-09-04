@@ -14,7 +14,7 @@ import {
   deliverables,
   client_contacts,
 } from "@/db/schema";
-import { eq, and, desc, sql, count, sum, lt, ne } from "drizzle-orm";
+import { eq, and, desc, sql, count, sum, ne } from "drizzle-orm";
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 

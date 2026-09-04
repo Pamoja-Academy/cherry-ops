@@ -7,8 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run build",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:reset": "rm -f data/cherry-ops.db data/cherry-ops.db-shm data/cherry-ops.db-wal && npm run db:push && npm run db:seed"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

@@ -1,6 +1,6 @@
 import { getJobs } from "@/lib/queries";
 import Link from "next/link";
-import { Calendar, User } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 const STAGES = ["brief", "production", "review", "delivery", "complete"] as const;
 type Stage = typeof STAGES[number];
@@ -84,7 +84,7 @@ export default async function JobsPage() {
                             <Calendar className="w-3 h-3" />
                             {job.due_date ?? "No date"}
                           </div>
-                          {job.value && (
+                          {job.value != null && (
                             <span className="text-xs font-bold" style={{ color: "#1A1214" }}>
                               {fmt(job.value)}
                             </span>

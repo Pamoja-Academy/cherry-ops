@@ -1,7 +1,7 @@
 import { getClientById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone, Building2 } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);

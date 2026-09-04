@@ -1,5 +1,15 @@
 import { getAutopilotActions } from "@/lib/queries";
 import { ApprovalCard } from "@/components/autopilot/ApprovalCard";
+import {
+  AlarmClock,
+  BarChart3,
+  Target,
+  TriangleAlert,
+  Mail,
+  CircleCheck,
+  Bot,
+  type LucideIcon,
+} from "lucide-react";
 
 function timeAgo(dateStr: string): string {
   const now = new Date();
@@ -11,13 +21,13 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  sla_flag: "⏰",
-  pacing_alert: "📊",
-  lead_nudge: "🎯",
-  overdue_flag: "⚠️",
-  send_invoice_reminder: "📧",
-  mark_job_complete: "✅",
+const TYPE_ICONS: Record<string, LucideIcon> = {
+  sla_flag: AlarmClock,
+  pacing_alert: BarChart3,
+  lead_nudge: Target,
+  overdue_flag: TriangleAlert,
+  send_invoice_reminder: Mail,
+  mark_job_complete: CircleCheck,
 };
 
 export default async function AutopilotPage() {
@@ -44,7 +54,7 @@ export default async function AutopilotPage() {
         </div>
         {pending.length === 0 ? (
           <div className="rounded-xl border p-8 text-center" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-            <div className="text-2xl mb-2">✅</div>
+            <CircleCheck className="w-8 h-8 mx-auto mb-2" style={{ color: "#16A34A" }} />
             <div className="font-semibold text-sm" style={{ color: "#1A1214" }}>All caught up</div>
             <div className="text-xs mt-1" style={{ color: "#8C8078" }}>No pending approvals</div>
           </div>
@@ -61,26 +71,40 @@ export default async function AutopilotPage() {
       <div>
         <h3 className="font-display font-bold mb-3" style={{ color: "#1A1214" }}>Activity Log</h3>
         <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
-          {history.map((a, i) => (
+          {history.map((a, i) => {
+            const Icon = TYPE_ICONS[a.type] ?? Bot;
+            return (
             <div
               key={a.id}
               className="flex items-start gap-3 px-5 py-4"
               style={{ borderBottom: i < history.length - 1 ? "1px solid #F3EBE7" : "none" }}
             >
-              <div className="text-lg flex-shrink-0 mt-0.5">{TYPE_ICONS[a.type] ?? "🤖"}</div>
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ background: "#FCE8EC" }}
+              >
+                <Icon className="w-4 h-4" style={{ color: "#7A0B22" }} />
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold" style={{ color: "#1A1214" }}>{a.title}</div>
                 <div className="text-xs mt-0.5" style={{ color: "#8C8078" }}>{a.description}</div>
               </div>
               <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                <span className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                  style={{ background: "#DCFCE7", color: "#16A34A" }}>
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded-full font-medium capitalize"
+                  style={
+                    a.status === "rejected"
+                      ? { background: "#F3EBE7", color: "#8C8078" }
+                      : { background: "#DCFCE7", color: "#16A34A" }
+                  }
+                >
                   {a.status.replace("_", " ")}
                 </span>
                 <span className="text-xs" style={{ color: "#8C8078" }}>{timeAgo(a.proposed_at)}</span>
               </div>
             </div>
-          ))}
+            );
+          })}
           {history.length === 0 && (
             <div className="px-5 py-8 text-center text-sm" style={{ color: "#8C8078" }}>No history yet.</div>
           )}

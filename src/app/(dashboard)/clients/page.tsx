@@ -1,6 +1,6 @@
 import { getClients } from "@/lib/queries";
 import Link from "next/link";
-import { Building2, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 const SECTOR_COLORS: Record<string, string> = {
   "Financial Services": "#1D4ED8",

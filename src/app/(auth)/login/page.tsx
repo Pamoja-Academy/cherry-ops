@@ -19,30 +19,39 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [signingInRole, setSigningInRole] = useState<string | null>(null);
   const router = useRouter();
+
+  async function doSignIn(e: string, p: string) {
+    const result = await signIn("credentials", {
+      email: e,
+      password: p,
+      redirect: false,
+    });
+    if (result?.error) {
+      setError("Invalid credentials. Please try again.");
+      return false;
+    }
+    router.push("/");
+    router.refresh();
+    return true;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    await doSignIn(email, password);
     setLoading(false);
-    if (result?.error) {
-      setError("Invalid credentials. Please try again.");
-    } else {
-      router.push("/");
-      router.refresh();
-    }
   }
 
-  function fillRole(role: (typeof DEMO_ROLES)[0]) {
+  async function quickSignIn(role: (typeof DEMO_ROLES)[0]) {
     setEmail(role.email);
     setPassword(role.password);
     setError("");
+    setSigningInRole(role.email);
+    await doSignIn(role.email, role.password);
+    setSigningInRole(null);
   }
 
   return (
@@ -134,10 +143,11 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8C8078" }}>
+              <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8C8078" }}>
                 Email
               </label>
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -153,10 +163,11 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8C8078" }}>
+              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8C8078" }}>
                 Password
               </label>
               <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -194,10 +205,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo role cards */}
+          {/* Demo role cards — one-click sign in */}
           <div className="mt-8">
             <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#8C8078" }}>
-              Demo Access — click to fill
+              Demo Access — click to sign in
             </p>
             <div className="grid grid-cols-1 gap-2">
               {DEMO_ROLES.map((role) => (
@@ -205,8 +216,9 @@ export default function LoginPage() {
                   key={role.email}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  onClick={() => fillRole(role)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all hover:border-cherry cursor-pointer"
+                  onClick={() => quickSignIn(role)}
+                  disabled={signingInRole !== null || loading}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all hover:border-cherry cursor-pointer disabled:opacity-70"
                   style={{
                     background: "#fff",
                     border: email === role.email ? "1px solid #C4122F" : "1px solid #E4D8D1",
@@ -216,12 +228,19 @@ export default function LoginPage() {
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                     style={{ background: email === role.email ? "#C4122F" : "#8C8078" }}
                   >
-                    {role.initials}
+                    {signingInRole === role.email ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      role.initials
+                    )}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <div className="text-xs font-semibold" style={{ color: "#1A1214" }}>{role.name}</div>
                     <div className="text-xs" style={{ color: "#8C8078" }}>{role.label}</div>
                   </div>
+                  {signingInRole === role.email && (
+                    <span className="text-xs font-medium" style={{ color: "#C4122F" }}>Signing in…</span>
+                  )}
                 </motion.button>
               ))}
             </div>

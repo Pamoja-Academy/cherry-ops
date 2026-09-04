@@ -6,6 +6,8 @@ import {
   leads,
   autopilot_actions,
   activity_events,
+  studio_resources,
+  studio_allocs,
 } from "@/db/schema";
 import { eq, and, lt, ne, sql } from "drizzle-orm";
 
@@ -58,6 +60,48 @@ export async function runAutopilotRules() {
       });
 
       results.push(`Flagged overdue invoice: ${inv.number}`);
+    }
+  }
+
+  // Rule 1b: Invoice overdue >7 days → auto-draft reminder to finance queue (safe)
+  const veryOverdue = await db
+    .select()
+    .from(invoices)
+    .where(and(eq(invoices.status, "overdue"), lt(invoices.due_date!, sevenDaysAgo)));
+
+  for (const inv of veryOverdue) {
+    const existing = await db
+      .select()
+      .from(autopilot_actions)
+      .where(
+        and(
+          eq(autopilot_actions.type, "reminder_draft"),
+          eq(autopilot_actions.entity_id, inv.id),
+          sql`substr(${autopilot_actions.proposed_at}, 1, 10) = ${today}`
+        )
+      )
+      .get();
+
+    if (!existing) {
+      await db.insert(autopilot_actions).values({
+        type: "reminder_draft",
+        classification: "safe",
+        status: "auto_ran",
+        entity_type: "invoice",
+        entity_id: inv.id,
+        title: `Reminder drafted: invoice ${inv.number}`,
+        description: `Invoice is 7+ days overdue (R${inv.amount.toLocaleString()}). Reminder draft placed in the finance queue.`,
+        resolved_at: today,
+      });
+
+      await db.insert(activity_events).values({
+        entity_type: "invoice",
+        entity_id: inv.id,
+        type: "reminder_draft",
+        description: `🤖 Autopilot: reminder drafted for 7+ day overdue invoice ${inv.number} — finance queue`,
+      });
+
+      results.push(`Reminder draft: ${inv.number}`);
     }
   }
 
@@ -187,6 +231,52 @@ export async function runAutopilotRules() {
       });
 
       results.push(`Lead nudge: ${lead.company}`);
+    }
+  }
+
+  // Rule 5: Studio resource over-allocated today → warning on production board (safe)
+  const resources = await db.select().from(studio_resources);
+  const todayAllocs = await db.select().from(studio_allocs).where(eq(studio_allocs.date, today));
+
+  for (const resource of resources) {
+    const allocated = todayAllocs
+      .filter((a) => a.resource_id === resource.id)
+      .reduce((s, a) => s + a.hours, 0);
+
+    if (allocated > resource.capacity_hours_per_day) {
+      const existing = await db
+        .select()
+        .from(autopilot_actions)
+        .where(
+          and(
+            eq(autopilot_actions.type, "studio_over_allocated"),
+            eq(autopilot_actions.entity_id, resource.id),
+            sql`substr(${autopilot_actions.proposed_at}, 1, 10) = ${today}`
+          )
+        )
+        .get();
+
+      if (!existing) {
+        await db.insert(autopilot_actions).values({
+          type: "studio_over_allocated",
+          classification: "safe",
+          status: "auto_ran",
+          entity_type: "studio_resource",
+          entity_id: resource.id,
+          title: `Studio over-allocated: ${resource.name}`,
+          description: `${resource.name} is booked ${allocated}h vs ${resource.capacity_hours_per_day}h capacity today. Warning shown on the production board.`,
+          resolved_at: today,
+        });
+
+        await db.insert(activity_events).values({
+          entity_type: "studio_resource",
+          entity_id: resource.id,
+          type: "studio_over_allocated",
+          description: `🤖 Autopilot: ${resource.name} over-allocated today (${allocated}h / ${resource.capacity_hours_per_day}h)`,
+        });
+
+        results.push(`Studio over-allocation: ${resource.name}`);
+      }
     }
   }
 

@@ -123,6 +123,40 @@ export default async function JobDetailPage(props: PageProps<"/jobs/[id]">) {
           </div>
         )}
 
+        {/* Media buys */}
+        {job.media_buys.length > 0 && (
+          <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+            <h3 className="font-display font-bold mb-4" style={{ color: "#1A1214" }}>Media Buys</h3>
+            <div className="space-y-3">
+              {job.media_buys.map((b) => {
+                const pct = b.budget > 0 ? Math.round((b.spent / b.budget) * 100) : 0;
+                const barColor =
+                  b.pacing_status === "over" ? "#C4122F" :
+                  b.pacing_status === "under" ? "#D97706" : "#16A34A";
+                return (
+                  <div key={b.id} className="p-3 rounded-lg border" style={{ borderColor: "#F3EBE7" }}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-sm font-medium" style={{ color: "#1A1214" }}>{b.title}</div>
+                      <span className="text-xs font-semibold capitalize" style={{ color: barColor }}>
+                        {b.pacing_status}
+                      </span>
+                    </div>
+                    <div className="text-xs mb-2" style={{ color: "#8C8078" }}>
+                      {b.channel}{b.placement ? ` · ${b.placement}` : ""} · {fmt(b.spent)} of {fmt(b.budget)}
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#F3EBE7" }}>
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${Math.min(pct, 100)}%`, background: barColor }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Invoices */}
         {job.invoices.length > 0 && (
           <div className="rounded-xl border p-5" style={{ background: "#fff", borderColor: "#E4D8D1" }}>

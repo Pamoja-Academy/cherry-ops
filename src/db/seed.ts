@@ -56,6 +56,22 @@ async function seed() {
     { name: "Massmart (Walmart SA)", sector: "Retail", industry: "Mass Retail", contact_name: "Ryan Jacobs", contact_email: "r.jacobs@massmart.co.za", contact_phone: "+27 11 517 0000", is_private_sector: true, account_manager_id: pheladi.id, status: "active", notes: "New private sector target — H2 2026 priority" },
   ]).returning();
 
+  // Client contacts
+  await db.insert(client_contacts).values([
+    { client_id: africanBank.id, name: "Karabo Malatsi", role: "Chief Marketing Officer", email: "karabo@africanbank.co.za", phone: "+27 11 256 9001", is_primary: true },
+    { client_id: africanBank.id, name: "Naledi Moyo", role: "Brand Manager", email: "n.moyo@africanbank.co.za", phone: "+27 11 256 9002", is_primary: false },
+    { client_id: tigerBrands.id, name: "John Doe", role: "Marketing Director", email: "j.doe@tigerbrands.com", phone: "+27 11 840 4001", is_primary: true },
+    { client_id: tigerBrands.id, name: "Ayesha Patel", role: "Category Lead — Confectionery", email: "a.patel@tigerbrands.com", phone: "+27 11 840 4002", is_primary: false },
+    { client_id: fnb.id, name: "Naledi Sithole", role: "Head of Rewards", email: "naledi@fnb.co.za", phone: "+27 87 575 9404", is_primary: true },
+    { client_id: fnb.id, name: "Pieter Botha", role: "Digital Channels Lead", email: "p.botha@fnb.co.za", phone: "+27 87 575 9405", is_primary: false },
+    { client_id: oldMutual.id, name: "Bongani Shabalala", role: "Marketing Executive", email: "b.shabalala@oldmutual.com", phone: "+27 21 509 2001", is_primary: true },
+    { client_id: truCape.id, name: "Mike van der Merwe", role: "Marketing Manager", email: "mike@trucape.co.za", phone: "+27 21 860 4000", is_primary: true },
+    { client_id: saTourism.id, name: "Ntombi Mthembu", role: "Director: Domestic Tourism", email: "ntombi@satourism.gov.za", phone: "+27 11 895 3000", is_primary: true },
+    { client_id: gcis.id, name: "Thandi Mokoena", role: "Deputy Director: Campaigns", email: "thandi@gcis.gov.za", phone: "+27 12 473 0000", is_primary: true },
+    { client_id: massmart.id, name: "Ryan Jacobs", role: "Head of Brand", email: "r.jacobs@massmart.co.za", phone: "+27 11 517 0001", is_primary: true },
+    { client_id: massmart.id, name: "Lindiwe Sithole", role: "Trade Marketing Manager", email: "l.sithole@massmart.co.za", phone: "+27 11 517 0002", is_primary: false },
+  ]);
+
   // Jobs
   const today = new Date();
   const d = (daysOffset: number) => {
@@ -91,6 +107,10 @@ async function seed() {
     { job_id: africanLoyalty.id, title: "Venue scouting report", assignee_id: production.id, status: "done", due_date: d(-2) },
     { job_id: africanLoyalty.id, title: "Production schedule finalisation", assignee_id: production.id, status: "in_progress", due_date: d(5) },
     { job_id: fnbApp.id, title: "Logistics & vendor briefing", assignee_id: production.id, status: "todo", due_date: d(7) },
+    { job_id: oldMutualQ4.id, title: "Audience & channel strategy", assignee_id: media.id, status: "in_progress", due_date: d(6) },
+    { job_id: oldMutualQ4.id, title: "Creative territory development", assignee_id: creative.id, status: "todo", due_date: d(12) },
+    { job_id: tigerBirthday.id, title: "Final delivery QA & trafficking", assignee_id: production.id, status: "in_progress", due_date: d(2) },
+    { job_id: gcisHeritage.id, title: "Community radio flighting check", assignee_id: media.id, status: "todo", due_date: d(4) },
   ]);
 
   // Deliverables
@@ -146,12 +166,12 @@ async function seed() {
     { job_id: fnbTVC.id, client_id: fnb.id, number: "RCI-2026-003", amount: 225000, status: "sent" as const, issued_date: d(-5), due_date: d(25) },
     { job_id: fnbApp.id, client_id: fnb.id, number: "RCI-2026-004", amount: 75000, status: "draft" as const, issued_date: d(0), due_date: d(30) },
     { job_id: tigerBirthday.id, client_id: tigerBrands.id, number: "RCI-2026-005", amount: 92000, status: "overdue" as const, issued_date: d(-35), due_date: d(-5) },
-    { job_id: tigerOros.id, client_id: tigerBrands.id, number: "RCI-2026-006", amount: 120000, status: "paid" as const, issued_date: d(-55), due_date: d(-25), paid_date: d(-28) },
+    { job_id: tigerOros.id, client_id: tigerBrands.id, number: "RCI-2026-006", amount: 120000, status: "paid" as const, issued_date: d(-55), due_date: d(-25), paid_date: d(-2) },
     { job_id: oldMutualQ4.id, client_id: oldMutual.id, number: "RCI-2026-007", amount: 80000, status: "draft" as const, issued_date: d(0), due_date: d(30) },
     { job_id: oldMutualWebinar.id, client_id: oldMutual.id, number: "RCI-2026-008", amount: 37500, status: "draft" as const, issued_date: d(0), due_date: d(30) },
     { job_id: truCapeDigital.id, client_id: truCape.id, number: "RCI-2026-009", amount: 47500, status: "sent" as const, issued_date: d(-8), due_date: d(22) },
     { job_id: saTourismSummer.id, client_id: saTourism.id, number: "RCI-2026-010", amount: 55000, status: "overdue" as const, issued_date: d(-40), due_date: d(-10) },
-    { job_id: saTourismSummer.id, client_id: saTourism.id, number: "RCI-2026-011", amount: 90000, status: "paid" as const, issued_date: d(-65), due_date: d(-35), paid_date: d(-38) },
+    { job_id: saTourismSummer.id, client_id: saTourism.id, number: "RCI-2026-011", amount: 90000, status: "paid" as const, issued_date: d(-65), due_date: d(-35), paid_date: d(-1) },
     { job_id: gcisHeritage.id, client_id: gcis.id, number: "RCI-2026-012", amount: 110000, status: "sent" as const, issued_date: d(-7), due_date: d(23) },
     { job_id: massmartBF.id, client_id: massmart.id, number: "RCI-2026-013", amount: 64000, status: "draft" as const, issued_date: d(0), due_date: d(30) },
     { job_id: africanBrandRefresh.id, client_id: africanBank.id, number: "RCI-2026-014", amount: 255000, status: "paid" as const, issued_date: d(-75), due_date: d(-45), paid_date: d(-48) },
@@ -159,6 +179,14 @@ async function seed() {
   ];
   const invRows = await db.insert(invoices).values(invoiceData).returning();
   const invByNumber = Object.fromEntries(invRows.map((r) => [r.number, r.id]));
+
+  // Payments for settled invoices
+  await db.insert(payments).values([
+    { invoice_id: invByNumber["RCI-2026-006"], amount: 120000, method: "EFT", date: d(-2) },
+    { invoice_id: invByNumber["RCI-2026-011"], amount: 90000, method: "EFT", date: d(-1) },
+    { invoice_id: invByNumber["RCI-2026-014"], amount: 255000, method: "EFT", date: d(-48) },
+    { invoice_id: invByNumber["RCI-2026-015"], amount: 112500, method: "EFT", date: d(-32) },
+  ]);
 
   // Leads
   const leadRows = await db.insert(leads).values([
@@ -179,7 +207,7 @@ async function seed() {
     { entity_type: "lead", entity_id: leadByCompany["Discovery Health"], type: "lead_updated", description: "Discovery Health lead advanced to Proposal stage", actor_id: pheladi.id, created_at: d(-2) + "T11:00:00" },
     { entity_type: "job", entity_id: massmartBF.id, type: "job_created", description: "New job created: Massmart Black Friday ATL Campaign (R640,000)", actor_id: pheladi.id, created_at: d(-1) + "T10:00:00" },
     { entity_type: "media_buy", entity_id: buyByTitle["Jelly Tots Instagram Stories"], type: "pacing_alert", description: "⚠️ Jelly Tots Instagram Stories pacing OVER budget", actor_id: null, created_at: d(0) + "T08:00:00" },
-    { entity_type: "invoice", entity_id: invByNumber["RCI-2026-006"], type: "invoice_paid", description: "Invoice RCI-2026-006 paid by Tiger Brands (R120,000)", actor_id: finance.id, created_at: d(-28) + "T16:00:00" },
+    { entity_type: "invoice", entity_id: invByNumber["RCI-2026-006"], type: "invoice_paid", description: "Invoice RCI-2026-006 paid by Tiger Brands (R120,000)", actor_id: finance.id, created_at: d(-2) + "T16:00:00" },
     { entity_type: "job", entity_id: africanBrandRefresh.id, type: "stage_change", description: "African Bank Brand Refresh moved to Review stage", actor_id: creative.id, created_at: d(-5) + "T09:00:00" },
     { entity_type: "lead", entity_id: leadByCompany["Pick n Pay"], type: "lead_updated", description: "Pick n Pay lead marked as Warm — new contact established", actor_id: pheladi.id, created_at: d(-3) + "T13:45:00" },
     { entity_type: "autopilot", entity_id: null, type: "sla_flag", description: "🤖 Autopilot: SLA flag raised for Jelly Tots Birthday Campaign (7 days to deadline)", actor_id: null, created_at: d(-2) + "T07:00:00" },

@@ -1,113 +1,128 @@
 @import "tailwindcss";
 
-/* ── Cherry Ops Design Tokens ──────────────────────────────────────────────── */
+/* Joe Public × Red Cherry — dark editorial agency OS */
 :root {
-  /* Brand */
   --cherry: #C4122F;
   --cherry-hover: #9E0E26;
-  --cherry-soft: #FCE8EC;
+  --cherry-soft: rgba(196, 18, 47, 0.16);
   --cherry-mark-primary: #7A0B22;
-  --cherry-mark-accent: #C4122F;
 
-  /* Ink scale */
-  --ink: #1A1214;
-  --muted: #8C8078;
-  --wash: #F3EBE7;
-  --background: #FBF6F2;
-  --panel: #FFFFFF;
-  --line: #E4D8D1;
+  --ink: #f5f5f5;
+  --muted: #8a8a8a;
+  --wash: #161616;
+  --background: #080808;
+  --panel: #111111;
+  --line: rgba(255, 255, 255, 0.1);
 
-  /* Semantic */
   --foreground: var(--ink);
-  --background-page: var(--background);
-  --sidebar-bg: var(--ink);
-  --sidebar-text: #F3EBE7;
-  --sidebar-muted: #8C8078;
+  --sidebar-bg: #050505;
+  --sidebar-text: #f5f5f5;
+  --sidebar-muted: #6b6b6b;
 
-  /* Shadows */
-  --shadow-card: 0 1px 3px 0 rgba(26,18,20,0.08), 0 1px 2px -1px rgba(26,18,20,0.06);
-  --shadow-elevated: 0 4px 16px 0 rgba(26,18,20,0.10);
+  --shadow-card: none;
+  --shadow-elevated: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
-/* ── Base ───────────────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
 body {
   background-color: var(--background);
   color: var(--ink);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Typography ─────────────────────────────────────────────────────────────── */
 .font-display {
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-syne), var(--font-dm-sans), system-ui, sans-serif;
 }
 
-h1, h2 {
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+h1,
+h2,
+h3 {
+  font-family: var(--font-syne), system-ui, sans-serif;
   font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
-/* ── Grain texture overlay ──────────────────────────────────────────────────── */
 .grain-overlay::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 100px 100px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
 }
 
-/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-/* ── Kanban ─────────────────────────────────────────────────────────────────── */
-.kanban-col {
-  min-height: 400px;
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
 }
 
-/* ── Cherry badge ───────────────────────────────────────────────────────────── */
 .badge-cherry {
   background-color: var(--cherry-soft);
-  color: var(--cherry-mark-primary);
-  border: 1px solid #F4BEC8;
+  color: #fecaca;
+  border: 1px solid rgba(196, 18, 47, 0.35);
 }
 
-/* ── Pacing bar ─────────────────────────────────────────────────────────────── */
-.pacing-ok    { background-color: #16A34A; }
-.pacing-under { background-color: #D97706; }
-.pacing-over  { background-color: var(--cherry); }
+.pacing-ok {
+  background-color: #4ade80;
+}
+.pacing-under {
+  background-color: #fbbf24;
+}
+.pacing-over {
+  background-color: var(--cherry);
+}
 
-/* ── Status chips ───────────────────────────────────────────────────────────── */
-.status-active   { background: #DCFCE7; color: #15803D; }
-.status-inactive { background: var(--wash); color: var(--muted); }
-.status-overdue  { background: var(--cherry-soft); color: var(--cherry); }
-.status-paid     { background: #DCFCE7; color: #15803D; }
-.status-sent     { background: #DBEAFE; color: #1D4ED8; }
-.status-draft    { background: var(--wash); color: var(--muted); }
+.status-active {
+  background: rgba(74, 222, 128, 0.12);
+  color: #86efac;
+}
+.status-inactive {
+  background: #1a1a1a;
+  color: #777;
+}
+.status-overdue {
+  background: var(--cherry-soft);
+  color: #fca5a5;
+}
+.status-paid {
+  background: rgba(74, 222, 128, 0.12);
+  color: #86efac;
+}
+.status-sent {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ddd;
+}
+.status-draft {
+  background: #1a1a1a;
+  color: #777;
+}
 
-/* ── Shadcn overrides ───────────────────────────────────────────────────────── */
 [data-slot="card"] {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: var(--shadow-card);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 [data-slot="badge"] {
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }

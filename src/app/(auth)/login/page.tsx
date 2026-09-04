@@ -1,25 +1,137 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect, useRef } from "react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
+function roleHome(role: string | undefined): string {
+  switch (role) {
+    case "CEO":
+      return "/dashboard";
+    case "CREATIVE_DIRECTOR":
+      return "/jobs";
+    case "DIRECTOR":
+      return "/clients";
+    case "PRODUCTION":
+      return "/production";
+    case "MEDIA":
+      return "/media";
+    case "FINANCE":
+      return "/invoices";
+    default:
+      return "/dashboard";
+  }
+}
+
 const DEMO_ROLES = [
-  { label: "CEO", email: "pheladi@redcherry.demo", password: "cherry-ceo-2026", initials: "PM", name: "Pheladi Mphahlele" },
-  { label: "Creative Director", email: "creative@redcherry.demo", password: "cherry-cd-2026", initials: "TN", name: "Thabo Nkosi" },
-  { label: "Production", email: "production@redcherry.demo", password: "cherry-prod-2026", initials: "LD", name: "Lerato Dlamini" },
-  { label: "Media", email: "media@redcherry.demo", password: "cherry-media-2026", initials: "SM", name: "Sipho Molefe" },
-  { label: "Finance", email: "finance@redcherry.demo", password: "cherry-fin-2026", initials: "ZK", name: "Zanele Khumalo" },
+  {
+    label: "CEO",
+    email: "ceo@cherry-ops.demo",
+    password: "cherry-ceo-2026",
+    initials: "PM",
+    name: "Pheladi Mphahlele",
+    hero: "/hero/cherry-ops-hero.png",
+    focus: "48% 12%",
+  },
+  {
+    label: "Creative Director",
+    email: "cd@cherry-ops.demo",
+    password: "cherry-cd-2026",
+    initials: "DV",
+    name: "Danny van Vuuren",
+    hero: "/hero/cherry-ops-hero-danny.png",
+    focus: "50% 10%",
+  },
+  {
+    label: "Director",
+    email: "director@cherry-ops.demo",
+    password: "cherry-dir-2026",
+    initials: "JM",
+    name: "Jenna Murray-Smith",
+    hero: "/hero/cherry-ops-hero-jenna.png",
+    focus: "50% 16%",
+  },
+  {
+    label: "Production Director",
+    email: "production@cherry-ops.demo",
+    password: "cherry-prod-2026",
+    initials: "RB",
+    name: "Robbyn Burger",
+    hero: "/hero/cherry-ops-hero-robbyn.png",
+    focus: "50% 14%",
+  },
+  {
+    label: "Media Director",
+    email: "media@cherry-ops.demo",
+    password: "cherry-media-2026",
+    initials: "FD",
+    name: "Faye Dawood",
+    hero: "/hero/cherry-ops-hero-faye.png",
+    focus: "50% 18%",
+  },
+  {
+    label: "Finance Manager",
+    email: "finance@cherry-ops.demo",
+    password: "cherry-fin-2026",
+    initials: "AF",
+    name: "Aliki Frantzeskos",
+    hero: "/hero/cherry-ops-hero-aliki.png",
+    focus: "50% 16%",
+  },
 ];
+
+const TEAM_SLIDE = {
+  label: "Leadership",
+  name: "Red Cherry Cast",
+  hero: "/hero/cherry-ops-team-wallpaper.png",
+  focus: "50% 40%",
+};
+
+/** Rotation: group shot first, then each locked hero */
+const HERO_SLIDES = [TEAM_SLIDE, ...DEMO_ROLES.map((r) => ({
+  label: r.label,
+  name: r.name,
+  hero: r.hero,
+  focus: r.focus,
+}))];
+
+const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
+  id: i,
+  left: `${6 + ((i * 17) % 88)}%`,
+  delay: i * 0.35,
+  duration: 7 + (i % 5),
+  size: 3 + (i % 4),
+}));
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const userPicked = useRef(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    const t = setTimeout(() => {
+      setEmail("");
+      setPassword("");
+    }, 50);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (paused || userPicked.current) return;
+    const id = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % HERO_SLIDES.length);
+    }, 5500);
+    return () => clearInterval(id);
+  }, [paused]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,199 +146,369 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Invalid credentials. Please try again.");
     } else {
-      router.push("/");
+      const session = await getSession();
+      router.push(roleHome(session?.user?.role));
       router.refresh();
     }
   }
 
-  function fillRole(role: (typeof DEMO_ROLES)[0]) {
+  function selectSlide(index: number, lock = false) {
+    setHeroIndex(index);
+    if (lock) {
+      userPicked.current = true;
+      setPaused(true);
+    }
+  }
+
+  function fillRole(role: (typeof DEMO_ROLES)[0], roleIndex: number) {
     setEmail(role.email);
     setPassword(role.password);
     setError("");
+    // DEMO_ROLES map to HERO_SLIDES index + 1 (0 is team)
+    selectSlide(roleIndex + 1, true);
   }
 
-  return (
-    <div className="relative min-h-screen flex overflow-hidden">
-      {/* Left: full-bleed hero */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-14 overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #7A0B22 0%, #C4122F 45%, #9E0E26 100%)",
-        }}
-      >
-        {/* Grain */}
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat",
-            backgroundSize: "128px",
-          }}
-        />
-        {/* Top wordmark */}
-        <div className="relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">●</span>
-              </div>
-              <span className="text-white/80 text-sm font-medium tracking-widest uppercase">Red Cherry Interactive</span>
-            </div>
-          </motion.div>
-        </div>
-        {/* Center hero text */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.7 }}
-          className="relative z-10"
-        >
-          <h1 className="font-display text-6xl xl:text-7xl font-bold text-white leading-none mb-4">
-            Cherry<br />Ops
-          </h1>
-          <p className="text-white/70 text-lg font-light leading-relaxed max-w-xs">
-            Red Cherry Interactive's Agency Operating System. Built for 30 years of excellence.
-          </p>
-        </motion.div>
-        {/* Bottom tagline */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-          className="relative z-10"
-        >
-          <p className="text-white/40 text-xs tracking-wider uppercase">
-            Strategy · Creative · Media · Production · PR
-          </p>
-        </motion.div>
-      </motion.div>
+  const active = HERO_SLIDES[heroIndex];
 
-      {/* Right: login form */}
-      <div
-        className="w-full lg:w-1/2 flex flex-col justify-center px-8 py-12 sm:px-12 lg:px-16"
-        style={{ background: "#FBF6F2" }}
-      >
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="max-w-md mx-auto w-full"
+  return (
+    <div className="h-dvh max-h-dvh overflow-hidden bg-[#050505] text-white">
+      <div className="grid h-full lg:grid-cols-2">
+        {/* Left: cinematic interactive hero */}
+        <section
+          className="relative hidden h-full overflow-hidden bg-[#0a0a0a] lg:block"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => {
+            if (!userPicked.current) setPaused(false);
+          }}
         >
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-8">
-            <h1 className="font-display text-4xl font-bold text-cherry" style={{ color: "#C4122F" }}>Cherry Ops</h1>
-            <p className="text-sm text-muted mt-1" style={{ color: "#8C8078" }}>Red Cherry Interactive</p>
+          {/* Ambient cherry bloom */}
+          <motion.div
+            className="pointer-events-none absolute left-1/2 top-[38%] h-[55vmin] w-[55vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(196,18,47,0.45) 0%, rgba(196,18,47,0.12) 42%, transparent 70%)",
+            }}
+            animate={{ opacity: [0.35, 0.75, 0.45, 0.7, 0.35], scale: [0.92, 1.08, 0.98, 1.05, 0.92] }}
+            transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute inset-[-8%]"
+            animate={{
+              scale: [1.08, 1.14, 1.1, 1.16, 1.08],
+              x: [0, -14, 6, -8, 0],
+              y: [0, 8, -4, 10, 0],
+            }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active.hero}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7 }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={active.hero}
+                  alt={active.name}
+                  className="h-full w-full object-cover"
+                  style={{ objectPosition: active.focus }}
+                  draggable={false}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Soft light sweep */}
+          <motion.div
+            className="pointer-events-none absolute inset-0 mix-blend-soft-light"
+            style={{
+              background:
+                "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.14) 48%, transparent 62%)",
+            }}
+            animate={{ x: ["-40%", "55%", "-40%"] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(5,5,5,0.2) 0%, transparent 28%, rgba(5,5,5,0.35) 62%, rgba(5,5,5,0.94) 100%)",
+            }}
+          />
+
+          {PARTICLES.map((p) => (
+            <motion.span
+              key={p.id}
+              className="pointer-events-none absolute bg-[#C4122F]"
+              style={{
+                left: p.left,
+                bottom: "-4%",
+                width: p.size,
+                height: p.size * 1.6,
+                boxShadow: "0 0 8px rgba(196,18,47,0.6)",
+              }}
+              animate={{
+                y: [0, -820],
+                x: [0, (p.id % 2 === 0 ? 1 : -1) * (14 + p.id * 2)],
+                opacity: [0, 0.85, 0],
+                rotate: [0, 40 + p.id * 8],
+              }}
+              transition={{
+                duration: p.duration,
+                delay: p.delay,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          ))}
+
+          {/* Cast selector — stable arrows + static thumbnails (never drift under motion) */}
+          <div className="absolute inset-x-0 bottom-[7.5rem] z-20 flex items-end justify-center gap-3 px-6 xl:bottom-36">
+            <button
+              type="button"
+              aria-label="Previous hero"
+              onClick={() =>
+                selectSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, true)
+              }
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+            >
+              ‹
+            </button>
+            <div className="flex items-end justify-center gap-2 xl:gap-2.5">
+              {HERO_SLIDES.map((slide, i) => {
+                const selected = heroIndex === i;
+                return (
+                  <button
+                    key={slide.hero}
+                    type="button"
+                    aria-label={`Show ${slide.name}`}
+                    aria-pressed={selected}
+                    onClick={() => selectSlide(i, true)}
+                    className="group relative block overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+                    style={{
+                      width: selected ? 56 : 44,
+                      height: selected ? 72 : 56,
+                      borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
+                      boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
+                      flex: "none",
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slide.hero}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
+                      draggable={false}
+                    />
+                    <span
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background: selected
+                          ? "transparent"
+                          : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
+                      }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              aria-label="Next hero"
+              onClick={() => selectSlide((heroIndex + 1) % HERO_SLIDES.length, true)}
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+            >
+              ›
+            </button>
           </div>
 
-          <h2 className="font-display text-3xl font-bold mb-2" style={{ color: "#1A1214" }}>
-            Welcome back
-          </h2>
-          <p className="mb-8 text-sm" style={{ color: "#8C8078" }}>
-            Sign in to your agency workspace
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8C8078" }}>
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="you@redcherry.co.za"
-                className="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 transition-all"
-                style={{
-                  background: "#fff",
-                  border: "1px solid #E4D8D1",
-                  color: "#1A1214",
-                  "--tw-ring-color": "#C4122F",
-                } as React.CSSProperties}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8C8078" }}>
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••••••"
-                className="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none focus:ring-2 transition-all"
-                style={{
-                  background: "#fff",
-                  border: "1px solid #E4D8D1",
-                  color: "#1A1214",
-                  "--tw-ring-color": "#C4122F",
-                } as React.CSSProperties}
-              />
-            </div>
-
-            {error && (
-              <motion.p
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm px-3 py-2 rounded-lg"
-                style={{ background: "#FCE8EC", color: "#C4122F" }}
-              >
-                {error}
-              </motion.p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg font-semibold text-white text-sm transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
-              style={{ background: "linear-gradient(135deg, #C4122F, #9E0E26)" }}
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {loading ? "Signing in…" : "Sign in"}
-            </button>
-          </form>
-
-          {/* Demo role cards */}
-          <div className="mt-8">
-            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#8C8078" }}>
-              Demo Access — click to fill
+          <div className="absolute inset-x-0 bottom-0 z-10 p-8 xl:p-10">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
+              Red Cherry Interactive
             </p>
-            <div className="grid grid-cols-1 gap-2">
-              {DEMO_ROLES.map((role) => (
-                <motion.button
-                  key={role.email}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => fillRole(role)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all hover:border-cherry cursor-pointer"
+            <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.05em] xl:text-6xl">
+              CHERRY
+              <br />
+              <span className="text-[#C4122F]">OPS</span>
+            </h1>
+            <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
+              {active.name} · {active.label}
+            </p>
+          </div>
+        </section>
+
+        {/* Right: compact form */}
+        <section className="relative flex h-full min-h-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-10 lg:border-l lg:border-white/10 lg:px-12">
+          <div className="mb-4 shrink-0 lg:hidden">
+            {/* Mobile: show active hero including team wallpaper */}
+            <div className="relative mb-4 h-36 w-full overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={active.hero}
+                alt=""
+                className="h-full w-full object-cover"
+                style={{ objectPosition: active.focus }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+            </div>
+            <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
+              {HERO_SLIDES.map((slide, i) => (
+                <button
+                  key={slide.hero}
+                  type="button"
+                  aria-label={`Show ${slide.name}`}
+                  onClick={() => selectSlide(i, true)}
+                  className="h-10 w-10 flex-shrink-0 overflow-hidden border"
                   style={{
-                    background: "#fff",
-                    border: email === role.email ? "1px solid #C4122F" : "1px solid #E4D8D1",
+                    borderColor: heroIndex === i ? "#C4122F" : "rgba(255,255,255,0.2)",
                   }}
                 >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                    style={{ background: email === role.email ? "#C4122F" : "#8C8078" }}
-                  >
-                    {role.initials}
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold" style={{ color: "#1A1214" }}>{role.name}</div>
-                    <div className="text-xs" style={{ color: "#8C8078" }}>{role.label}</div>
-                  </div>
-                </motion.button>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={slide.hero}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
+                  />
+                </button>
               ))}
             </div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#C4122F]">
+              Red Cherry Interactive
+            </p>
+            <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight">
+              CHERRY <span className="text-[#C4122F]">OPS</span>
+            </h1>
           </div>
-        </motion.div>
+
+          <div className="flex min-h-0 w-full max-w-md flex-col">
+            <h2 className="shrink-0 font-display text-2xl font-bold tracking-tight xl:text-3xl">
+              Enter workspace
+            </h2>
+            <p className="mt-1 shrink-0 text-xs text-white/45 sm:text-sm">
+              Demo roles for the contest walkthrough
+            </p>
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-4 shrink-0 space-y-3"
+              autoComplete="off"
+              data-lpignore="true"
+              data-1p-ignore
+            >
+              <input
+                type="text"
+                name="cherry-ops-username"
+                autoComplete="username"
+                className="hidden"
+                tabIndex={-1}
+                aria-hidden
+                readOnly
+                value=""
+              />
+              <input
+                type="password"
+                name="cherry-ops-password"
+                autoComplete="new-password"
+                className="hidden"
+                tabIndex={-1}
+                aria-hidden
+                readOnly
+                value=""
+              />
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="cherry-ops-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="off"
+                  placeholder="ceo@cherry-ops.demo"
+                  className="w-full border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white outline-none focus:border-[#C4122F]"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="cherry-ops-pass"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="••••••••••••"
+                  className="w-full border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white outline-none focus:border-[#C4122F]"
+                />
+              </div>
+
+              {error && (
+                <p className="border border-[#C4122F]/40 bg-[#C4122F]/15 px-3 py-2 text-xs text-[#fecaca]">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-2 bg-[#C4122F] py-3 text-sm font-bold uppercase tracking-[0.15em] text-white hover:bg-[#9E0E26] disabled:opacity-60"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {loading ? "Signing in…" : "Sign in"}
+              </button>
+            </form>
+
+            <div className="mt-5 flex min-h-0 flex-1 flex-col">
+              <p className="mb-2 shrink-0 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/35">
+                Demo access
+              </p>
+              <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+                {DEMO_ROLES.map((role, i) => (
+                  <button
+                    key={role.email}
+                    type="button"
+                    onClick={() => fillRole(role, i)}
+                    className="flex w-full items-center gap-2.5 border px-3 py-2 text-left transition hover:border-[#C4122F]/60"
+                    style={{
+                      borderColor: email === role.email ? "#C4122F" : "rgba(255,255,255,0.1)",
+                      background:
+                        email === role.email ? "rgba(196,18,47,0.12)" : "rgba(0,0,0,0.35)",
+                    }}
+                  >
+                    <div className="h-8 w-8 flex-shrink-0 overflow-hidden border border-white/10">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={role.hero}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        style={{ objectPosition: role.focus }}
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-xs font-semibold text-white sm:text-sm">
+                        {role.name}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-white/40">
+                        {role.label}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

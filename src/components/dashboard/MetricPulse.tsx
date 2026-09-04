@@ -1,55 +1,88 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import {
+  TrendingUp,
+  Briefcase,
+  AlertTriangle,
+  Radio,
+  Bot,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
+
+const ICONS: Record<string, LucideIcon> = {
+  TrendingUp,
+  Briefcase,
+  AlertTriangle,
+  Radio,
+  Bot,
+  Target,
+};
 
 interface MetricPulseProps {
   label: string;
   value: string;
-  icon: LucideIcon;
+  iconName: keyof typeof ICONS;
   color: string;
-  bg: string;
   subtitle?: string;
   urgent?: boolean;
 }
 
-export function MetricPulse({ label, value, icon: Icon, color, bg, subtitle, urgent }: MetricPulseProps) {
+export function MetricPulse({
+  label,
+  value,
+  iconName,
+  color,
+  subtitle,
+  urgent,
+}: MetricPulseProps) {
+  const Icon = ICONS[iconName] ?? Target;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2, boxShadow: "0 8px 24px rgba(26,18,20,0.12)" }}
-      transition={{ duration: 0.3 }}
-      className="rounded-xl p-5 border relative overflow-hidden"
-      style={{ background: "#fff", borderColor: "#E4D8D1" }}
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="relative group overflow-hidden border border-white/10 bg-[#111] p-6"
     >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-80"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
+      />
       {urgent && (
         <motion.div
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ border: `1px solid ${color}` }}
+          animate={{ opacity: [0.15, 0.35, 0.15] }}
+          transition={{ repeat: Infinity, duration: 2.2 }}
+          className="absolute inset-0"
+          style={{ background: `${color}18` }}
         />
       )}
-      <div className="flex items-start justify-between mb-3">
+      <div className="relative flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
+            {label}
+          </p>
+          <p
+            className="mt-3 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl"
+            style={{ letterSpacing: "-0.03em" }}
+          >
+            {value}
+          </p>
+          {subtitle && (
+            <p className="mt-2 text-xs font-medium" style={{ color }}>
+              {subtitle}
+            </p>
+          )}
+        </div>
         <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center"
-          style={{ background: bg }}
+          className="flex h-10 w-10 items-center justify-center border border-white/10 bg-black/40"
+          style={{ color }}
         >
-          <Icon className="w-4.5 h-4.5" style={{ color, width: 18, height: 18 }} />
+          <Icon className="h-4 w-4" />
         </div>
       </div>
-      <div className="text-2xl font-bold mb-0.5" style={{ color: "#1A1214", fontFamily: "inherit" }}>
-        {value}
-      </div>
-      <div className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: "#8C8078" }}>
-        {label}
-      </div>
-      {subtitle && (
-        <div className="text-xs" style={{ color }}>
-          {subtitle}
-        </div>
-      )}
     </motion.div>
   );
 }

@@ -1,30 +1,31 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-syne",
   display: "swap",
+  weight: ["500", "600", "700", "800"],
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Cherry Ops — Red Cherry Interactive",
-  description: "Agency Operating System for Red Cherry Interactive",
+  description: "Agency operating system for Red Cherry Interactive",
 };
 
 export default function RootLayout({
   children,
 }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} h-full`}>
-      <body className="h-full bg-background antialiased">{children}</body>
+    <html lang="en" className={`${syne.variable} ${dmSans.variable} h-full`}>
+      <body className="h-full antialiased">{children}</body>
     </html>
   );
 }

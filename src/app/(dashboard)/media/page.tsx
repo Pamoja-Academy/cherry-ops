@@ -16,16 +16,16 @@ export default async function MediaPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>Media Buys</h2>
-        <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>{buys.length} placements</p>
+        <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>Media Buys</h2>
+        <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{buys.length} placements</p>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ background: "#fff", borderColor: "#E4D8D1" }}>
+      <div className="rounded-xl border overflow-hidden" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: "1px solid #E4D8D1" }}>
+            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
               {["Buy", "Channel / Placement", "Budget", "Spent", "Pacing", "Status", "Period"].map((h) => (
-                <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#8C8078" }}>
+                <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
                   {h}
                 </th>
               ))}
@@ -42,22 +42,22 @@ export default async function MediaPage() {
               return (
                 <tr key={buy.id} style={{ borderBottom: i < buys.length - 1 ? "1px solid #F3EBE7" : "none" }}>
                   <td className="px-5 py-4">
-                    <div className="text-sm font-semibold" style={{ color: "#1A1214" }}>{buy.title}</div>
-                    <div className="text-xs" style={{ color: "#8C8078" }}>{buy.job?.title ?? "—"}</div>
+                    <div className="text-sm font-semibold" style={{ color: "#f5f5f5" }}>{buy.title}</div>
+                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{buy.job?.title ?? "—"}</div>
                   </td>
                   <td className="px-5 py-4">
-                    <div className="text-sm font-medium" style={{ color: "#1A1214" }}>{buy.channel}</div>
-                    <div className="text-xs" style={{ color: "#8C8078" }}>{buy.placement ?? "—"}</div>
+                    <div className="text-sm font-medium" style={{ color: "#f5f5f5" }}>{buy.channel}</div>
+                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{buy.placement ?? "—"}</div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm font-semibold" style={{ color: "#1A1214" }}>{fmt(buy.budget)}</span>
+                    <span className="text-sm font-semibold" style={{ color: "#f5f5f5" }}>{fmt(buy.budget)}</span>
                   </td>
                   <td className="px-5 py-4">
                     <span className="text-sm font-semibold" style={{ color: barColor }}>{fmt(buy.spent)}</span>
                   </td>
                   <td className="px-5 py-4" style={{ minWidth: 120 }}>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#F3EBE7" }}>
+                      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "#1a1a1a" }}>
                         <div
                           className="h-full rounded-full"
                           style={{ width: `${Math.min(pct, 100)}%`, background: barColor }}
@@ -80,7 +80,7 @@ export default async function MediaPage() {
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <div className="text-xs" style={{ color: "#8C8078" }}>
+                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
                       {buy.start_date ?? "—"} → {buy.end_date ?? "—"}
                     </div>
                   </td>

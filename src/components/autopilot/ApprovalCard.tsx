@@ -47,9 +47,9 @@ export function ApprovalCard({ action }: Props) {
         transition={{ delay: 0.8, duration: 0.3 }}
         className="overflow-hidden"
       >
-        <div className="rounded-xl border p-4 flex items-center gap-3" style={{ background: result === "approved" ? "#DCFCE7" : "#F3EBE7", borderColor: "#E4D8D1" }}>
-          {result === "approved" ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4" style={{ color: "#8C8078" }} />}
-          <span className="text-sm font-medium" style={{ color: "#1A1214" }}>
+                      <div className="rounded-xl border p-4 flex items-center gap-3" style={{ background: result === "approved" ? "rgba(22,163,74,0.2)" : "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+          {result === "approved" ? <Check className="w-4 h-4 text-green-400" /> : <X className="w-4 h-4 text-white/50" />}
+          <span className="text-sm font-medium text-white">
             {result === "approved" ? "Approved" : "Rejected"} — {action.title}
           </span>
         </div>
@@ -62,7 +62,7 @@ export function ApprovalCard({ action }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl border p-5"
-      style={{ background: "#fff", borderColor: "#E4D8D1" }}
+      style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
@@ -70,17 +70,17 @@ export function ApprovalCard({ action }: Props) {
             <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "#FCE8EC", color: "#C4122F" }}>
               ⚠ Risky
             </span>
-            <span className="text-xs" style={{ color: "#8C8078" }}>{action.type.replace(/_/g, " ")}</span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{action.type.replace(/_/g, " ")}</span>
           </div>
-          <div className="font-semibold text-sm mb-1" style={{ color: "#1A1214" }}>{action.title}</div>
-          <div className="text-xs leading-relaxed" style={{ color: "#8C8078" }}>{action.description}</div>
+          <div className="font-semibold text-sm mb-1" style={{ color: "#f5f5f5" }}>{action.title}</div>
+          <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{action.description}</div>
         </div>
         <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={() => handleAction("rejected")}
             disabled={status !== "idle"}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors hover:bg-wash disabled:opacity-50"
-            style={{ borderColor: "#E4D8D1", color: "#8C8078" }}
+            style={{ borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.45)" }}
           >
             {status === "rejecting" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
             Reject

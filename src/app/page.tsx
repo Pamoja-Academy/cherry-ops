@@ -1,11 +1,6 @@
-import { auth } from "@/lib/auth";
-import { getRoleHome } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/login");
-  }
-  redirect(getRoleHome(session.user.role));
+/** Always open on login — never skip straight into the CRM from the root URL. */
+export default function Home() {
+  redirect("/login");
 }

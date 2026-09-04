@@ -1,4 +1,5 @@
 import { db } from "./index";
+import { sqlite } from "./index";
 import {
   users,
   clients,
@@ -10,35 +11,106 @@ import {
   studio_allocs,
   media_buys,
   invoices,
+  payments,
   leads,
   activity_events,
   autopilot_actions,
+  opportunities,
+  opportunity_reminders,
+  workspace_settings,
 } from "./schema";
+import { briefToOpportunityRow, getDemoBriefs } from "@/lib/opportunity/ingest";
+
+function ensureOpportunityTables() {
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS opportunities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      external_id TEXT NOT NULL UNIQUE,
+      source TEXT NOT NULL DEFAULT 'media-ingest',
+      reference TEXT,
+      title TEXT NOT NULL,
+      description TEXT,
+      issuer TEXT,
+      province TEXT,
+      category TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      published_at TEXT,
+      closing_at TEXT,
+      briefing_at TEXT,
+      estimated_value REAL,
+      currency TEXT NOT NULL DEFAULT 'ZAR',
+      source_url TEXT,
+      fit_score INTEGER,
+      score_breakdown TEXT,
+      triage_status TEXT NOT NULL DEFAULT 'pending',
+      triage_note TEXT,
+      triaged_at TEXT,
+      triaged_by INTEGER REFERENCES users(id),
+      ingested_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS opportunity_reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      opportunity_id INTEGER NOT NULL REFERENCES opportunities(id),
+      kind TEXT NOT NULL DEFAULT 'deadline',
+      offset_hours INTEGER NOT NULL,
+      due_at TEXT NOT NULL,
+      sent_at TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      payload TEXT
+    );
+    CREATE TABLE IF NOT EXISTS workspace_settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agency_name TEXT NOT NULL DEFAULT 'Red Cherry Interactive',
+      headquarters TEXT NOT NULL DEFAULT 'Rivonia, Sandton, Johannesburg',
+      founded TEXT NOT NULL DEFAULT '1996 · 30 Years',
+      certification TEXT NOT NULL DEFAULT 'Level 1 BBBEE · Female-Owned',
+      services TEXT NOT NULL DEFAULT 'Strategy · Creative · Media · Production · PR · Digital · Activations',
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+}
 
 async function seed() {
   console.log("🌱 Seeding Cherry Ops database...");
 
-  // Clear existing data
+  ensureOpportunityTables();
+
+  // Clear existing data (FK order)
+  await db.delete(opportunity_reminders);
+  await db.delete(opportunities);
   await db.delete(autopilot_actions);
   await db.delete(activity_events);
   await db.delete(leads);
   await db.delete(studio_allocs);
   await db.delete(media_buys);
+  await db.delete(payments);
   await db.delete(invoices);
   await db.delete(deliverables);
   await db.delete(job_tasks);
   await db.delete(jobs);
   await db.delete(client_contacts);
   await db.delete(clients);
+  await db.delete(studio_resources);
   await db.delete(users);
+  await db.delete(workspace_settings);
+
+  await db.insert(workspace_settings).values({
+    agency_name: "Red Cherry Interactive",
+    headquarters: "Rivonia, Sandton, Johannesburg",
+    founded: "1996 · 30 Years",
+    certification: "Level 1 BBBEE · Female-Owned",
+    services: "Strategy · Creative · Media · Production · PR · Digital · Activations",
+  });
 
   // Users
-  const [pheladi, creative, production, media, finance] = await db.insert(users).values([
-    { email: "pheladi@redcherry.demo", name: "Pheladi Mphahlele", password: "cherry-ceo-2026", role: "CEO", avatar_initials: "PM" },
-    { email: "creative@redcherry.demo", name: "Thabo Nkosi", password: "cherry-cd-2026", role: "CREATIVE_DIRECTOR", avatar_initials: "TN" },
-    { email: "production@redcherry.demo", name: "Lerato Dlamini", password: "cherry-prod-2026", role: "PRODUCTION", avatar_initials: "LD" },
-    { email: "media@redcherry.demo", name: "Sipho Molefe", password: "cherry-media-2026", role: "MEDIA", avatar_initials: "SM" },
-    { email: "finance@redcherry.demo", name: "Zanele Khumalo", password: "cherry-fin-2026", role: "FINANCE", avatar_initials: "ZK" },
+  const [pheladi, creative, director, production, media, finance] = await db.insert(users).values([
+    { email: "ceo@cherry-ops.demo", name: "Pheladi Mphahlele", password: "cherry-ceo-2026", role: "CEO", avatar_initials: "PM" },
+    { email: "cd@cherry-ops.demo", name: "Danny van Vuuren", password: "cherry-cd-2026", role: "CREATIVE_DIRECTOR", avatar_initials: "DV" },
+    { email: "director@cherry-ops.demo", name: "Jenna Murray-Smith", password: "cherry-dir-2026", role: "DIRECTOR", avatar_initials: "JM" },
+    { email: "production@cherry-ops.demo", name: "Robbyn Burger", password: "cherry-prod-2026", role: "PRODUCTION", avatar_initials: "RB" },
+    { email: "media@cherry-ops.demo", name: "Faye Dawood", password: "cherry-media-2026", role: "MEDIA", avatar_initials: "FD" },
+    { email: "finance@cherry-ops.demo", name: "Aliki Frantzeskos", password: "cherry-fin-2026", role: "FINANCE", avatar_initials: "AF" },
   ]).returning();
 
   // Clients
@@ -114,7 +186,7 @@ async function seed() {
     { resource_id: editA.id, job_id: africanBrandRefresh.id, date: d(0), hours: 2 },
     { resource_id: editB.id, job_id: tigerBirthday.id, date: d(0), hours: 4 },
     { resource_id: editB.id, job_id: truCapeDigital.id, date: d(0), hours: 4 },
-    { resource_id: voStudio.id, job_id: oldMutual.id, date: d(0), hours: 3 },
+    { resource_id: voStudio.id, job_id: oldMutualQ4.id, date: d(0), hours: 3 },
     { resource_id: voStudio.id, job_id: africanLoyalty.id, date: d(0), hours: 5 },
     { resource_id: greenScreen.id, job_id: fnbTVC.id, date: d(1), hours: 8 },
     { resource_id: editA.id, job_id: fnbTVC.id, date: d(1), hours: 5 },
@@ -201,13 +273,18 @@ async function seed() {
     { type: "sla_flag", classification: "safe", status: "auto_ran", entity_type: "job", entity_id: tigerBirthday.id, title: "SLA Flag: Jelly Tots Birthday Campaign", description: "Job due in 7 days. SLA flag raised in activity feed.", proposed_at: d(-2) + "T07:00:00", resolved_at: d(-2) + "T07:00:00" },
     { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: 2, title: "Pacing Alert: Jelly Tots Instagram Stories OVER", description: "Media buy pacing over budget. Alert logged to activity feed and media team notified.", proposed_at: d(0) + "T08:00:00", resolved_at: d(0) + "T08:00:00" },
     { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: 3, title: "Pacing Alert: Jelly Tots YouTube UNDER", description: "Media buy pacing under. Alert logged — under 15% spend vs flight duration.", proposed_at: d(-1) + "T08:00:00", resolved_at: d(-1) + "T08:00:00" },
-    { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: 3, title: "Lead Nudge: Capitec Bank", description: "Capitec Bank lead hasn't been updated in 14+ days. Nudge sent to Thabo Nkosi.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
+    { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: 3, title: "Lead Nudge: Capitec Bank", description: "Capitec Bank lead hasn't been updated in 14+ days. Nudge sent to Danny van Vuuren.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
     { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: 9, title: "Pacing Alert: GCIS Community Radio UNDER", description: "Community Radio buy is pacing under. Alert logged to media team.", proposed_at: d(-1) + "T08:00:00", resolved_at: d(-1) + "T08:00:00" },
     { type: "sla_flag", classification: "safe", status: "auto_ran", entity_type: "job", entity_id: oldMutualQ4.id, title: "SLA Flag: Old Mutual Q4 Campaign Brief Due Soon", description: "Old Mutual Q4 Campaign brief window opens in 3 days. Reminder logged.", proposed_at: d(-1) + "T07:00:00", resolved_at: d(-1) + "T07:00:00" },
     { type: "overdue_flag", classification: "safe", status: "auto_ran", entity_type: "invoice", entity_id: 5, title: "Overdue Flag: Tiger Brands Invoice", description: "Invoice RCI-2026-005 (R92,000) marked overdue. Finance team notified.", proposed_at: d(-1) + "T07:00:00", resolved_at: d(-1) + "T07:00:00" },
     { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: 5, title: "Lead Nudge: Shoprite Holdings", description: "Shoprite Holdings lead hasn't been updated in 21+ days. Nudge sent to Pheladi Mphahlele.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
   ]);
 
+  // Opportunity Ops — media briefs (scored on ingest)
+  const demoBriefs = getDemoBriefs().map(briefToOpportunityRow);
+  await db.insert(opportunities).values(demoBriefs);
+
+  console.log(`✅ Seeded ${demoBriefs.length} media opportunities`);
   console.log("✅ Seed complete!");
 }
 

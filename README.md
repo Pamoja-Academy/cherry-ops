@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cherry Ops
 
-## Getting Started
+**Red Cherry Interactive's Agency Operating System** — contest-ready CRM for full agency ops + private-sector growth.
 
-First, run the development server:
+Built for Pheladi Mphahlele (CEO) and the Creative Director. Deploys on Vercel as `cherry-ops.vercel.app`.
 
-```bash
+## Quick start (local — recommended for live demo)
+
+```powershell
+cd cherry-ops
+npm install
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open **http://localhost:3000** → click **CEO — Pheladi Mphahlele** on the login page.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo logins
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role | Email | Password |
+|------|-------|----------|
+| CEO | `ceo@cherry-ops.demo` | `cherry-ceo-2026` |
+| Creative Director | `cd@cherry-ops.demo` | `cherry-cd-2026` |
+| Production | `production@cherry-ops.demo` | `cherry-prod-2026` |
+| Media | `media@cherry-ops.demo` | `cherry-media-2026` |
+| Finance | `finance@cherry-ops.demo` | `cherry-fin-2026` |
 
-## Learn More
+## 90-second contest walkthrough
 
-To learn more about Next.js, take a look at the following resources:
+1. **Login as CEO** → Command Centre: revenue, overdue invoices, private-sector leads
+2. **Leads** → Pick n Pay, Discovery, Capitec, MTN pipeline (private-sector growth focus)
+3. **Clients** → African Bank, Tiger Brands, FNB, Massmart (new target)
+4. **Jobs** → FNB Smart Rewards Season 3 TVC (production), Massmart Black Friday (brief)
+5. **Autopilot** → Approve/reject pending actions (invoice send, job complete)
+6. **Sign out → Creative Director** → Jobs kanban + production view
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## What's included
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- CEO Command Centre with live metrics + autopilot feed
+- Clients (private-sector tagged) · Jobs/Campaigns kanban · Production board
+- Studio capacity · Media buy pacing · Invoice pipeline
+- **Private-Sector Pipeline** (leads) — supports Red Cherry's push for more FMCG, finance, retail clients
+- Guardrailed autopilot (safe auto-nudges; risky actions need approval)
 
-## Deploy on Vercel
+## Deploy to Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Repo: **https://github.com/Pamoja-Academy/cherry-ops**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. [Vercel Dashboard](https://vercel.com/new) → Import `Pamoja-Academy/cherry-ops`
+2. Framework: **Next.js** (auto-detected)
+3. Environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `NEXTAUTH_SECRET` | `cherry-ops-secret-2026-contest` (change for prod) |
+| `AUTH_SECRET` | same |
+| `NEXTAUTH_URL` | `https://cherry-ops.vercel.app` |
+
+4. Deploy → URL: **https://cherry-ops.vercel.app**
+
+Demo DB is bundled in `data/cherry-ops.db` and copied to `/tmp` on Vercel cold starts.
+
+## Scripts
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run db:seed` | Reset + seed demo data |
+| `npm run db:push` | Push Drizzle schema |
+
+## Spec
+
+Design doc: `docs/superpowers/specs/2026-09-03-cherry-ops-design.md`

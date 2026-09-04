@@ -1,9 +1,10 @@
 import { getJobs } from "@/lib/queries";
 import Link from "next/link";
-import { Calendar, User } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { JobStageSelect } from "@/components/jobs/JobStageSelect";
 
 const STAGES = ["brief", "production", "review", "delivery", "complete"] as const;
-type Stage = typeof STAGES[number];
+type Stage = (typeof STAGES)[number];
 
 const STAGE_LABELS: Record<Stage, string> = {
   brief: "Brief",
@@ -22,7 +23,11 @@ const STAGE_COLORS: Record<Stage, string> = {
 };
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("en-ZA", {
+    style: "currency",
+    currency: "ZAR",
+    maximumFractionDigits: 0,
+  }).format(n);
 
 function isOverdue(due_date: string | null) {
   if (!due_date) return false;
@@ -40,11 +45,14 @@ export default async function JobsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display text-2xl font-bold" style={{ color: "#1A1214" }}>Jobs & Campaigns</h2>
-        <p className="text-sm mt-0.5" style={{ color: "#8C8078" }}>{jobs.length} total jobs</p>
+        <h2 className="font-display text-2xl font-bold" style={{ color: "#f5f5f5" }}>
+          Jobs & Campaigns
+        </h2>
+        <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+          {jobs.length} total jobs — change stage on any card
+        </p>
       </div>
 
-      {/* Kanban */}
       <div className="flex gap-4 overflow-x-auto pb-4">
         {STAGES.map((stage) => {
           const color = STAGE_COLORS[stage];
@@ -56,7 +64,10 @@ export default async function JobsPage() {
                 <span className="text-xs font-bold uppercase tracking-wider" style={{ color }}>
                   {STAGE_LABELS[stage]}
                 </span>
-                <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full ml-auto" style={{ background: `${color}15`, color }}>
+                <span
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-full ml-auto"
+                  style={{ background: `${color}15`, color }}
+                >
                   {stageJobs.length}
                 </span>
               </div>
@@ -64,49 +75,66 @@ export default async function JobsPage() {
                 {stageJobs.map((job) => {
                   const overdue = job.stage !== "complete" && isOverdue(job.due_date);
                   return (
-                    <Link key={job.id} href={`/jobs/${job.id}`}>
-                      <div
-                        className="p-4 rounded-xl border transition-all hover:shadow-md cursor-pointer"
-                        style={{
-                          background: "#fff",
-                          borderColor: overdue ? "#C4122F" : "#E4D8D1",
-                          borderWidth: overdue ? 1.5 : 1,
-                        }}
-                      >
-                        <div className="text-sm font-semibold mb-1 leading-tight" style={{ color: "#1A1214" }}>
+                    <div
+                      key={job.id}
+                      className="p-4 rounded-xl border transition-all"
+                      style={{
+                        background: "#111",
+                        borderColor: overdue ? "#C4122F" : "rgba(255,255,255,0.1)",
+                        borderWidth: overdue ? 1.5 : 1,
+                      }}
+                    >
+                      <Link href={`/jobs/${job.id}`} className="block">
+                        <div
+                          className="text-sm font-semibold mb-1 leading-tight hover:underline"
+                          style={{ color: "#f5f5f5" }}
+                        >
                           {job.title}
                         </div>
-                        <div className="text-xs mb-3" style={{ color: "#8C8078" }}>
+                        <div className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
                           {job.client?.name ?? "—"}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-xs" style={{ color: overdue ? "#C4122F" : "#8C8078" }}>
-                            <Calendar className="w-3 h-3" />
-                            {job.due_date ?? "No date"}
-                          </div>
-                          {job.value && (
-                            <span className="text-xs font-bold" style={{ color: "#1A1214" }}>
-                              {fmt(job.value)}
-                            </span>
-                          )}
+                      </Link>
+                      <div className="flex items-center justify-between">
+                        <div
+                          className="flex items-center gap-1 text-xs"
+                          style={{ color: overdue ? "#C4122F" : "#8C8078" }}
+                        >
+                          <Calendar className="w-3 h-3" />
+                          {job.due_date ?? "No date"}
                         </div>
-                        {job.owner && (
-                          <div className="flex items-center gap-1 mt-2 text-xs" style={{ color: "#8C8078" }}>
-                            <div
-                              className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                              style={{ background: "#C4122F", fontSize: 9 }}
-                            >
-                              {job.owner.avatar_initials}
-                            </div>
-                            {job.owner.name}
-                          </div>
+                        {job.value && (
+                          <span className="text-xs font-bold" style={{ color: "#f5f5f5" }}>
+                            {fmt(job.value)}
+                          </span>
                         )}
                       </div>
-                    </Link>
+                      {job.owner && (
+                        <div
+                          className="flex items-center gap-1 mt-2 text-xs"
+                          style={{ color: "rgba(255,255,255,0.45)" }}
+                        >
+                          <div
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                            style={{ background: "#C4122F", fontSize: 9 }}
+                          >
+                            {job.owner.avatar_initials}
+                          </div>
+                          {job.owner.name}
+                        </div>
+                      )}
+                      <JobStageSelect jobId={job.id} stage={job.stage as Stage} />
+                    </div>
                   );
                 })}
                 {stageJobs.length === 0 && (
-                  <div className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs" style={{ borderColor: "#E4D8D1", color: "#8C8078" }}>
+                  <div
+                    className="h-20 rounded-xl border-2 border-dashed flex items-center justify-center text-xs"
+                    style={{
+                      borderColor: "rgba(255,255,255,0.1)",
+                      color: "rgba(255,255,255,0.45)",
+                    }}
+                  >
                     Empty
                   </div>
                 )}

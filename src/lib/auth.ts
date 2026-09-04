@@ -35,6 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     process.env.AUTH_SECRET ??
     process.env.NEXTAUTH_SECRET ??
     "cherry-ops-secret-2026-contest",
+  // Required when running behind a hosted proxy (e.g. Vercel)
+  trustHost: true,
   providers: [
     Credentials({
       name: "credentials",

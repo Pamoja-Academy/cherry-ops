@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +33,7 @@ const DEMO_ROLES = [
     initials: "PM",
     name: "Pheladi Mphahlele",
     hero: "/hero/cherry-ops-hero.png",
+    focus: "48% 12%",
   },
   {
     label: "Creative Director",
@@ -41,6 +42,7 @@ const DEMO_ROLES = [
     initials: "DV",
     name: "Danny van Vuuren",
     hero: "/hero/cherry-ops-hero-danny.png",
+    focus: "50% 10%",
   },
   {
     label: "Director",
@@ -49,6 +51,7 @@ const DEMO_ROLES = [
     initials: "JM",
     name: "Jenna Murray-Smith",
     hero: "/hero/cherry-ops-hero-jenna.png",
+    focus: "50% 16%",
   },
   {
     label: "Production Director",
@@ -57,6 +60,7 @@ const DEMO_ROLES = [
     initials: "RB",
     name: "Robbyn Burger",
     hero: "/hero/cherry-ops-hero-robbyn.png",
+    focus: "50% 14%",
   },
   {
     label: "Media Director",
@@ -65,6 +69,7 @@ const DEMO_ROLES = [
     initials: "FD",
     name: "Faye Dawood",
     hero: "/hero/cherry-ops-hero-faye.png",
+    focus: "50% 18%",
   },
   {
     label: "Finance Manager",
@@ -73,8 +78,32 @@ const DEMO_ROLES = [
     initials: "AF",
     name: "Aliki Frantzeskos",
     hero: "/hero/cherry-ops-hero-aliki.png",
+    focus: "50% 16%",
   },
 ];
+
+const TEAM_SLIDE = {
+  label: "Leadership",
+  name: "Red Cherry Cast",
+  hero: "/hero/cherry-ops-team-wallpaper.png",
+  focus: "50% 40%",
+};
+
+/** Rotation: group shot first, then each locked hero */
+const HERO_SLIDES = [TEAM_SLIDE, ...DEMO_ROLES.map((r) => ({
+  label: r.label,
+  name: r.name,
+  hero: r.hero,
+  focus: r.focus,
+}))];
+
+const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
+  id: i,
+  left: `${6 + ((i * 17) % 88)}%`,
+  delay: i * 0.35,
+  duration: 7 + (i % 5),
+  size: 3 + (i % 4),
+}));
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -82,6 +111,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const userPicked = useRef(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -95,11 +126,12 @@ export default function LoginPage() {
   }, []);
 
   useEffect(() => {
+    if (paused || userPicked.current) return;
     const id = setInterval(() => {
-      setHeroIndex((i) => (i + 1) % DEMO_ROLES.length);
-    }, 5000);
+      setHeroIndex((i) => (i + 1) % HERO_SLIDES.length);
+    }, 5500);
     return () => clearInterval(id);
-  }, []);
+  }, [paused]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,55 +146,169 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Invalid credentials. Please try again.");
     } else {
-      // `/` always redirects to /login — never push "/" after sign-in
       const session = await getSession();
       router.push(roleHome(session?.user?.role));
       router.refresh();
     }
   }
 
-  function fillRole(role: (typeof DEMO_ROLES)[0], index: number) {
+  function selectSlide(index: number, lock = false) {
+    setHeroIndex(index);
+    if (lock) {
+      userPicked.current = true;
+      setPaused(true);
+    }
+  }
+
+  function fillRole(role: (typeof DEMO_ROLES)[0], roleIndex: number) {
     setEmail(role.email);
     setPassword(role.password);
     setError("");
-    setHeroIndex(index);
+    // DEMO_ROLES map to HERO_SLIDES index + 1 (0 is team)
+    selectSlide(roleIndex + 1, true);
   }
 
-  const activeHero = DEMO_ROLES[heroIndex];
+  const active = HERO_SLIDES[heroIndex];
 
   return (
     <div className="h-dvh max-h-dvh overflow-hidden bg-[#050505] text-white">
       <div className="grid h-full lg:grid-cols-2">
-        {/* Left: full viewport height — face always in frame, no scroll */}
-        <section className="relative hidden h-full overflow-hidden bg-[#0a0a0a] lg:block">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeHero.hero}
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7 }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={activeHero.hero}
-                alt={activeHero.name}
-                className="h-full w-full object-cover object-[50%_18%]"
-                draggable={false}
-              />
-            </motion.div>
-          </AnimatePresence>
+        {/* Left: cinematic interactive hero */}
+        <section
+          className="relative hidden h-full overflow-hidden bg-[#0a0a0a] lg:block"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => {
+            if (!userPicked.current) setPaused(false);
+          }}
+        >
+          {/* Ambient cherry bloom */}
+          <motion.div
+            className="pointer-events-none absolute left-1/2 top-[38%] h-[55vmin] w-[55vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(196,18,47,0.45) 0%, rgba(196,18,47,0.12) 42%, transparent 70%)",
+            }}
+            animate={{ opacity: [0.35, 0.75, 0.45, 0.7, 0.35], scale: [0.92, 1.08, 0.98, 1.05, 0.92] }}
+            transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute inset-[-8%]"
+            animate={{
+              scale: [1.08, 1.14, 1.1, 1.16, 1.08],
+              x: [0, -14, 6, -8, 0],
+              y: [0, 8, -4, 10, 0],
+            }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active.hero}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7 }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={active.hero}
+                  alt={active.name}
+                  className="h-full w-full object-cover"
+                  style={{ objectPosition: active.focus }}
+                  draggable={false}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Soft light sweep */}
+          <motion.div
+            className="pointer-events-none absolute inset-0 mix-blend-soft-light"
+            style={{
+              background:
+                "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.14) 48%, transparent 62%)",
+            }}
+            animate={{ x: ["-40%", "55%", "-40%"] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          />
 
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(5,5,5,0.25) 0%, transparent 28%, rgba(5,5,5,0.35) 62%, rgba(5,5,5,0.94) 100%)",
+                "linear-gradient(180deg, rgba(5,5,5,0.2) 0%, transparent 28%, rgba(5,5,5,0.35) 62%, rgba(5,5,5,0.94) 100%)",
             }}
           />
 
-          {/* Branding pinned in viewport bottom — never forces scroll */}
+          {PARTICLES.map((p) => (
+            <motion.span
+              key={p.id}
+              className="pointer-events-none absolute bg-[#C4122F]"
+              style={{
+                left: p.left,
+                bottom: "-4%",
+                width: p.size,
+                height: p.size * 1.6,
+                boxShadow: "0 0 8px rgba(196,18,47,0.6)",
+              }}
+              animate={{
+                y: [0, -820],
+                x: [0, (p.id % 2 === 0 ? 1 : -1) * (14 + p.id * 2)],
+                opacity: [0, 0.85, 0],
+                rotate: [0, 40 + p.id * 8],
+              }}
+              transition={{
+                duration: p.duration,
+                delay: p.delay,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          ))}
+
+          {/* Clickable cast strip — interactive portraits */}
+          <div className="absolute inset-x-0 bottom-[7.5rem] z-20 flex items-end justify-center gap-2 px-6 xl:bottom-36 xl:gap-2.5">
+            {HERO_SLIDES.map((slide, i) => {
+              const selected = heroIndex === i;
+              return (
+                <button
+                  key={slide.hero}
+                  type="button"
+                  aria-label={`Show ${slide.name}`}
+                  aria-pressed={selected}
+                  onClick={() => selectSlide(i, true)}
+                  className="group relative overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+                  style={{
+                    width: selected ? 56 : 44,
+                    height: selected ? 72 : 56,
+                    borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
+                    boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={slide.hero}
+                    alt=""
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    style={{
+                      objectPosition: i === 0 ? "50% 35%" : slide.focus,
+                    }}
+                    draggable={false}
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      background: selected
+                        ? "transparent"
+                        : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
           <div className="absolute inset-x-0 bottom-0 z-10 p-8 xl:p-10">
             <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
               Red Cherry Interactive
@@ -173,14 +319,47 @@ export default function LoginPage() {
               <span className="text-[#C4122F]">OPS</span>
             </h1>
             <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
-              {activeHero.name} · {activeHero.label}
+              {active.name} · {active.label}
             </p>
           </div>
         </section>
 
-        {/* Right: compact form — fits viewport, demo list scrolls internally if needed */}
+        {/* Right: compact form */}
         <section className="relative flex h-full min-h-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-10 lg:border-l lg:border-white/10 lg:px-12">
           <div className="mb-4 shrink-0 lg:hidden">
+            {/* Mobile: show active hero including team wallpaper */}
+            <div className="relative mb-4 h-36 w-full overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={active.hero}
+                alt=""
+                className="h-full w-full object-cover"
+                style={{ objectPosition: active.focus }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+            </div>
+            <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
+              {HERO_SLIDES.map((slide, i) => (
+                <button
+                  key={slide.hero}
+                  type="button"
+                  aria-label={`Show ${slide.name}`}
+                  onClick={() => selectSlide(i, true)}
+                  className="h-10 w-10 flex-shrink-0 overflow-hidden border"
+                  style={{
+                    borderColor: heroIndex === i ? "#C4122F" : "rgba(255,255,255,0.2)",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={slide.hero}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
+                  />
+                </button>
+              ))}
+            </div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#C4122F]">
               Red Cherry Interactive
             </p>
@@ -288,11 +467,14 @@ export default function LoginPage() {
                         email === role.email ? "rgba(196,18,47,0.12)" : "rgba(0,0,0,0.35)",
                     }}
                   >
-                    <div
-                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-[10px] font-bold text-white"
-                      style={{ background: email === role.email ? "#C4122F" : "#1a1a1a" }}
-                    >
-                      {role.initials}
+                    <div className="h-8 w-8 flex-shrink-0 overflow-hidden border border-white/10">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={role.hero}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        style={{ objectPosition: role.focus }}
+                      />
                     </div>
                     <div className="min-w-0">
                       <div className="truncate text-xs font-semibold text-white sm:text-sm">

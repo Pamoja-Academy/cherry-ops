@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, TriangleAlert } from "lucide-react";
 
 interface AutopilotAction {
   id: number;
@@ -23,18 +24,29 @@ interface Props {
 export function ApprovalCard({ action }: Props) {
   const [status, setStatus] = useState<"idle" | "approving" | "rejecting" | "done">("idle");
   const [result, setResult] = useState<"approved" | "rejected" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   async function handleAction(newStatus: "approved" | "rejected") {
     setStatus(newStatus === "approved" ? "approving" : "rejecting");
+    setError(null);
     try {
-      await fetch("/api/autopilot/resolve", {
+      const res = await fetch("/api/autopilot/resolve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: action.id, status: newStatus }),
       });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        setError(data.error ?? `Request failed (${res.status})`);
+        setStatus("idle");
+        return;
+      }
       setResult(newStatus);
       setStatus("done");
+      router.refresh();
     } catch {
+      setError("Network error — please try again");
       setStatus("idle");
     }
   }
@@ -74,6 +86,11 @@ export function ApprovalCard({ action }: Props) {
           </div>
           <div className="font-semibold text-sm mb-1" style={{ color: "#1A1214" }}>{action.title}</div>
           <div className="text-xs leading-relaxed" style={{ color: "#8C8078" }}>{action.description}</div>
+          {error && (
+            <div className="mt-2 flex items-center gap-1.5 text-xs font-medium" style={{ color: "#C4122F" }}>
+              <TriangleAlert className="w-3.5 h-3.5" /> {error}
+            </div>
+          )}
         </div>
         <div className="flex gap-2 flex-shrink-0">
           <button

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Bell } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -49,16 +49,6 @@ export function TopBar({ role, pendingCount }: TopBarProps) {
       </h1>
 
       <div className="flex items-center gap-3">
-        {/* Search (visual) */}
-        <div
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
-          style={{ background: "#F3EBE7", color: "#8C8078" }}
-        >
-          <Search className="w-3.5 h-3.5" />
-          <span className="text-xs">Search…</span>
-          <kbd className="text-xs px-1.5 py-0.5 rounded" style={{ background: "#E4D8D1" }}>⌘K</kbd>
-        </div>
-
         {/* Role pill */}
         <div
           className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"

@@ -1,4 +1,5 @@
 import { getInvoices } from "@/lib/queries";
+import { InvoiceActions } from "@/components/invoices/InvoiceActions";
 
 const STATUSES = ["draft", "sent", "overdue", "paid"] as const;
 type InvStatus = typeof STATUSES[number];
@@ -53,7 +54,7 @@ export default async function InvoicesPage() {
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              {["Number", "Client", "Job", "Amount", "Status", "Due Date", "Overdue"].map((h) => (
+              {["Number", "Client", "Job", "Amount", "Status", "Due Date", "Overdue", "Actions"].map((h) => (
                 <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
                   {h}
                 </th>
@@ -64,7 +65,7 @@ export default async function InvoicesPage() {
             {invoices.map((inv, i) => {
               const color = STATUS_COLORS[inv.status as InvStatus] ?? "#8C8078";
               return (
-                <tr key={inv.id} style={{ borderBottom: i < invoices.length - 1 ? "1px solid #F3EBE7" : "none" }}>
+                <tr key={inv.id} style={{ borderBottom: i < invoices.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
                   <td className="px-5 py-4">
                     <span className="text-sm font-semibold" style={{ color: "#f5f5f5" }}>{inv.number}</span>
                   </td>
@@ -94,6 +95,9 @@ export default async function InvoicesPage() {
                         {inv.daysOverdue}d
                       </span>
                     ) : <span style={{ color: "rgba(255,255,255,0.45)" }}>—</span>}
+                  </td>
+                  <td className="px-5 py-4">
+                    <InvoiceActions invoiceId={inv.id} status={inv.status} />
                   </td>
                 </tr>
               );

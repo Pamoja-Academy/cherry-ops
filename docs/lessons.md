@@ -19,3 +19,4 @@
 - The six-person team wallpaper must be rendered on the login hero surface (not only as a faded CRM backdrop) or it is "not rendered" for the user.
 - Red Cherry **Interactive** means writable CRM flows (create/edit/save), not seeded read-only screens — Settings and core entities must persist changes.
 - Visual login work that only exists on preview/SSO branches is invisible on the production alias — promote to `cherry-ops-hazel.vercel.app` (or merge to the production branch) or the user correctly sees "no changes".
+- Never ship hazel from a dirty CLI root that lacks `src/app` — that fails with "Couldn't find any pages or app directory"; promote a green Git/master deploy instead.

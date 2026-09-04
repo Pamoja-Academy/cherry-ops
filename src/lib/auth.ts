@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export type UserRole = "CEO" | "CREATIVE_DIRECTOR" | "PRODUCTION" | "MEDIA" | "FINANCE";
+export type UserRole = "CEO" | "CREATIVE_DIRECTOR" | "DIRECTOR" | "PRODUCTION" | "MEDIA" | "FINANCE";
 
 declare module "next-auth" {
   interface User {
@@ -89,6 +89,7 @@ export function getRoleHome(role: UserRole): string {
   switch (role) {
     case "CEO": return "/dashboard";
     case "CREATIVE_DIRECTOR": return "/jobs";
+    case "DIRECTOR": return "/clients";
     case "PRODUCTION": return "/production";
     case "MEDIA": return "/media";
     case "FINANCE": return "/invoices";

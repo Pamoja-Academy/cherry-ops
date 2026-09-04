@@ -9,3 +9,5 @@
 - On Vercel HTTPS, Auth.js sets `__Secure-authjs.session-token`; proxy/middleware `getToken` must use `secureCookie: true` (and `trustHost`) or login succeeds then every page 307s back to `/login`.
 - Production `AUTH_URL` / `NEXTAUTH_URL` must match the live host (e.g. `https://cherry-ops-hazel.vercel.app`), not a wrong `*.vercel.app` alias.
 - Opportunity Ops inside Cherry Ops must use media lexicon only — no BICS lab scorer gates, lab anchors, or industrial exclude patterns from other clients.
+- Never regenerate or replace locked hero art from memory/old prompts — only use the art-direction locks and the currently approved files on disk / in Cursor assets; if unsure, stop and report rather than inventing.
+- Team wallpaper must composite from all six locked individual hero PNGs + red-cherry-mark.png as references; verify every named person (esp. Robbyn) is present and recognizable before install/deploy — never ship a hallucinated lineup.

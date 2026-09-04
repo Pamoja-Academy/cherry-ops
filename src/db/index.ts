@@ -13,6 +13,7 @@ function resolveDbPath(): string {
     const tmpPath = "/tmp/cherry-ops.db";
     const bundled = path.join(process.cwd(), "data", "cherry-ops.db");
     if (!fs.existsSync(tmpPath) && fs.existsSync(bundled)) {
+      // Copy main file only; avoid partial WAL sidecars from build machine
       fs.copyFileSync(bundled, tmpPath);
     }
     return tmpPath;
@@ -28,7 +29,12 @@ if (!fs.existsSync(dir)) {
 }
 
 export const sqlite = new Database(dbPath);
-sqlite.pragma("journal_mode = WAL");
+// DELETE mode on Vercel avoids needing -wal/-shm companions after a single-file copy
+if (process.env.VERCEL) {
+  sqlite.pragma("journal_mode = DELETE");
+} else {
+  sqlite.pragma("journal_mode = WAL");
+}
 sqlite.pragma("foreign_keys = ON");
 
 sqlite.exec(`

@@ -48,9 +48,10 @@ export function Sidebar({ role, name, initials, pendingCount }: SidebarProps) {
   const roleLabel: Record<string, string> = {
     CEO: "Chief Executive",
     CREATIVE_DIRECTOR: "Creative Director",
-    PRODUCTION: "Production",
-    MEDIA: "Media",
-    FINANCE: "Finance",
+    DIRECTOR: "Director",
+    PRODUCTION: "Production Director",
+    MEDIA: "Media Director",
+    FINANCE: "Finance Manager",
   };
 
   return (

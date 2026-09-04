@@ -85,12 +85,13 @@ async function seed() {
   await db.delete(users);
 
   // Users
-  const [pheladi, creative, production, media, finance] = await db.insert(users).values([
+  const [pheladi, creative, director, production, media, finance] = await db.insert(users).values([
     { email: "ceo@cherry-ops.demo", name: "Pheladi Mphahlele", password: "cherry-ceo-2026", role: "CEO", avatar_initials: "PM" },
     { email: "cd@cherry-ops.demo", name: "Danny van Vuuren", password: "cherry-cd-2026", role: "CREATIVE_DIRECTOR", avatar_initials: "DV" },
-    { email: "production@cherry-ops.demo", name: "Lerato Dlamini", password: "cherry-prod-2026", role: "PRODUCTION", avatar_initials: "LD" },
-    { email: "media@cherry-ops.demo", name: "Sipho Molefe", password: "cherry-media-2026", role: "MEDIA", avatar_initials: "SM" },
-    { email: "finance@cherry-ops.demo", name: "Zanele Khumalo", password: "cherry-fin-2026", role: "FINANCE", avatar_initials: "ZK" },
+    { email: "director@cherry-ops.demo", name: "Jenna Murray-Smith", password: "cherry-dir-2026", role: "DIRECTOR", avatar_initials: "JM" },
+    { email: "production@cherry-ops.demo", name: "Robbyn Burger", password: "cherry-prod-2026", role: "PRODUCTION", avatar_initials: "RB" },
+    { email: "media@cherry-ops.demo", name: "Faye Dawood", password: "cherry-media-2026", role: "MEDIA", avatar_initials: "FD" },
+    { email: "finance@cherry-ops.demo", name: "Aliki Frantzeskos", password: "cherry-fin-2026", role: "FINANCE", avatar_initials: "AF" },
   ]).returning();
 
   // Clients

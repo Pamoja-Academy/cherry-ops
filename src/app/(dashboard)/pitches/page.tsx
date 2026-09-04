@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPitches } from "@/lib/queries";
 import { scoreBand } from "@/lib/opportunity/scorer";
+import { ensureOpportunitySeed } from "@/lib/opportunity/ensure-seed";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);
@@ -12,6 +13,7 @@ const REMINDER_COLORS: Record<string, string> = {
 };
 
 export default async function PitchesPage() {
+  await ensureOpportunitySeed();
   const pitches = await getPitches();
 
   return (

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getOpportunities, getOpportunityStats } from "@/lib/queries";
 import { scoreBand } from "@/lib/opportunity/scorer";
 import { OpportunityRowActions } from "@/components/opportunity/OpportunityRowActions";
+import { ScanBriefsButton } from "@/components/opportunity/ScanBriefsButton";
+import { ensureOpportunitySeed } from "@/lib/opportunity/ensure-seed";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);
@@ -17,6 +19,7 @@ function scoreColor(score: number) {
 }
 
 export default async function OpportunitiesPage(props: PageProps<"/opportunities">) {
+  await ensureOpportunitySeed();
   const sp = await props.searchParams;
   const showAll = sp?.show === "all";
   const [opportunities, stats] = await Promise.all([
@@ -35,12 +38,15 @@ export default async function OpportunitiesPage(props: PageProps<"/opportunities
             <h2 className="font-display text-2xl font-bold text-white">Opportunity Ops</h2>
             <p className="text-white/70 text-sm mt-1">Media tenders & briefs — score, triage, pitch</p>
           </div>
-          <Link
-            href={showAll ? "/opportunities" : "/opportunities?show=all"}
-            className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg border border-white/30 text-white/80 hover:text-white"
-          >
-            {showAll ? "Hide discard" : "Show all"}
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <ScanBriefsButton />
+            <Link
+              href={showAll ? "/opportunities" : "/opportunities?show=all"}
+              className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg border border-white/30 text-white/80 hover:text-white"
+            >
+              {showAll ? "Hide discard" : "Show all"}
+            </Link>
+          </div>
         </div>
         <div className="flex flex-wrap gap-6 mt-4">
           {[
@@ -63,7 +69,7 @@ export default async function OpportunitiesPage(props: PageProps<"/opportunities
             className="rounded-xl border p-8 text-center text-sm"
             style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.45)" }}
           >
-            No opportunities in inbox. Run ingest from Settings or POST /api/opportunities/ingest.
+            No opportunities in inbox. Click <span className="text-white">Scan briefs</span> above to load demo media tenders.
           </div>
         )}
         {opportunities.map((opp) => {

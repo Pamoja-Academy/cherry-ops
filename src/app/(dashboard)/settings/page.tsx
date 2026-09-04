@@ -3,14 +3,16 @@ import { getTeamMembers } from "@/lib/queries";
 const ROLE_LABELS: Record<string, string> = {
   CEO: "Chief Executive Officer",
   CREATIVE_DIRECTOR: "Creative Director",
-  PRODUCTION: "Production Manager",
-  MEDIA: "Media Specialist",
+  DIRECTOR: "Director",
+  PRODUCTION: "Production Director",
+  MEDIA: "Media Director",
   FINANCE: "Finance Manager",
 };
 
 const ROLE_COLORS: Record<string, string> = {
   CEO: "#C4122F",
   CREATIVE_DIRECTOR: "#7C3AED",
+  DIRECTOR: "#B45309",
   PRODUCTION: "#1D4ED8",
   MEDIA: "#0891B2",
   FINANCE: "#16A34A",
@@ -29,7 +31,7 @@ export default async function SettingsPage() {
       <div className="rounded-xl border overflow-hidden" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
         <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
           <h3 className="font-display font-bold" style={{ color: "#f5f5f5" }}>Team Members</h3>
-          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>5 demo accounts available</p>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>6 demo accounts available</p>
         </div>
         <div>
           {team.map((member, i) => {

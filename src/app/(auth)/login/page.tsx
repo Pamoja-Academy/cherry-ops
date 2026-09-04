@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
 const DEMO_ROLES = [
@@ -13,6 +13,7 @@ const DEMO_ROLES = [
     password: "cherry-ceo-2026",
     initials: "PM",
     name: "Pheladi Mphahlele",
+    hero: "/hero/cherry-ops-hero.png",
   },
   {
     label: "Creative Director",
@@ -20,43 +21,48 @@ const DEMO_ROLES = [
     password: "cherry-cd-2026",
     initials: "DV",
     name: "Danny van Vuuren",
+    hero: "/hero/cherry-ops-hero-danny.png",
   },
   {
-    label: "Production",
+    label: "Director",
+    email: "director@cherry-ops.demo",
+    password: "cherry-dir-2026",
+    initials: "JM",
+    name: "Jenna Murray-Smith",
+    hero: "/hero/cherry-ops-hero-jenna.png",
+  },
+  {
+    label: "Production Director",
     email: "production@cherry-ops.demo",
     password: "cherry-prod-2026",
-    initials: "LD",
-    name: "Lerato Dlamini",
+    initials: "RB",
+    name: "Robbyn Burger",
+    hero: "/hero/cherry-ops-hero-robbyn.png",
   },
   {
-    label: "Media",
+    label: "Media Director",
     email: "media@cherry-ops.demo",
     password: "cherry-media-2026",
-    initials: "SM",
-    name: "Sipho Molefe",
+    initials: "FD",
+    name: "Faye Dawood",
+    hero: "/hero/cherry-ops-hero-faye.png",
   },
   {
-    label: "Finance",
+    label: "Finance Manager",
     email: "finance@cherry-ops.demo",
     password: "cherry-fin-2026",
-    initials: "ZK",
-    name: "Zanele Khumalo",
+    initials: "AF",
+    name: "Aliki Frantzeskos",
+    hero: "/hero/cherry-ops-hero-aliki.png",
   },
 ];
-
-const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
-  id: i,
-  left: `${6 + ((i * 17) % 88)}%`,
-  delay: i * 0.35,
-  duration: 7 + (i % 5),
-  size: 3 + (i % 4),
-}));
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -67,6 +73,13 @@ export default function LoginPage() {
       setPassword("");
     }, 50);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % DEMO_ROLES.length);
+    }, 5000);
+    return () => clearInterval(id);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -87,150 +100,85 @@ export default function LoginPage() {
     }
   }
 
-  function fillRole(role: (typeof DEMO_ROLES)[0]) {
+  function fillRole(role: (typeof DEMO_ROLES)[0], index: number) {
     setEmail(role.email);
     setPassword(role.password);
     setError("");
+    setHeroIndex(index);
   }
 
+  const activeHero = DEMO_ROLES[heroIndex];
+
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
-      <div className="grid min-h-screen lg:grid-cols-2">
-        {/* Left: brand gate — cinematic quality, still a CRM login */}
-        <section className="relative hidden overflow-hidden bg-[#0a0a0a] lg:block">
-          {/* Ambient cherry bloom (behind art) */}
-          <motion.div
-            className="pointer-events-none absolute left-1/2 top-[38%] h-[55vmin] w-[55vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(196,18,47,0.45) 0%, rgba(196,18,47,0.12) 42%, transparent 70%)",
-            }}
-            animate={{ opacity: [0.35, 0.75, 0.45, 0.7, 0.35], scale: [0.92, 1.08, 0.98, 1.05, 0.92] }}
-            transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-          />
-
-          {/* Dual heroes: Pheladi (WW) + Danny (Wolverine) — same Marvel/DC cover style */}
-          <motion.div
-            className="absolute inset-[-8%]"
-            animate={{
-              scale: [1.08, 1.14, 1.1, 1.16, 1.08],
-              x: [0, -14, 6, -8, 0],
-              y: [0, 8, -4, 10, 0],
-            }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-          >
+    <div className="h-dvh max-h-dvh overflow-hidden bg-[#050505] text-white">
+      <div className="grid h-full lg:grid-cols-2">
+        {/* Left: full viewport height — face always in frame, no scroll */}
+        <section className="relative hidden h-full overflow-hidden bg-[#0a0a0a] lg:block">
+          <AnimatePresence mode="wait">
             <motion.div
+              key={activeHero.hero}
               className="absolute inset-0"
-              animate={{ opacity: [1, 1, 0, 0, 1] }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", times: [0, 0.42, 0.5, 0.92, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7 }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/hero/cherry-ops-hero.png"
-                alt="Pheladi Mphahlele — CEO"
-                className="h-full w-full object-cover object-[48%_12%]"
+                src={activeHero.hero}
+                alt={activeHero.name}
+                className="h-full w-full object-cover object-[50%_18%]"
                 draggable={false}
               />
             </motion.div>
-            <motion.div
-              className="absolute inset-0"
-              animate={{ opacity: [0, 0, 1, 1, 0] }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", times: [0, 0.42, 0.5, 0.92, 1] }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/hero/cherry-ops-hero-danny.png"
-                alt="Danny van Vuuren — Creative Director"
-                className="h-full w-full object-cover object-[50%_10%]"
-                draggable={false}
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* Soft light sweep across cloak / chest */}
-          <motion.div
-            className="pointer-events-none absolute inset-0 mix-blend-soft-light"
-            style={{
-              background:
-                "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.14) 48%, transparent 62%)",
-            }}
-            animate={{ x: ["-40%", "55%", "-40%"] }}
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-          />
+          </AnimatePresence>
 
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(5,5,5,0.2) 0%, transparent 35%, rgba(5,5,5,0.45) 72%, rgba(5,5,5,0.92) 100%)",
+                "linear-gradient(180deg, rgba(5,5,5,0.25) 0%, transparent 28%, rgba(5,5,5,0.35) 62%, rgba(5,5,5,0.94) 100%)",
             }}
           />
 
-          {PARTICLES.map((p) => (
-            <motion.span
-              key={p.id}
-              className="pointer-events-none absolute bg-[#C4122F]"
-              style={{
-                left: p.left,
-                bottom: "-4%",
-                width: p.size,
-                height: p.size * 1.6,
-                boxShadow: "0 0 8px rgba(196,18,47,0.6)",
-              }}
-              animate={{
-                y: [0, -820],
-                x: [0, (p.id % 2 === 0 ? 1 : -1) * (14 + p.id * 2)],
-                opacity: [0, 0.85, 0],
-                rotate: [0, 40 + p.id * 8],
-              }}
-              transition={{
-                duration: p.duration,
-                delay: p.delay,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-          ))}
-
-          <div className="absolute inset-x-0 bottom-0 z-10 p-12">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
+          {/* Branding pinned in viewport bottom — never forces scroll */}
+          <div className="absolute inset-x-0 bottom-0 z-10 p-8 xl:p-10">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
               Red Cherry Interactive
             </p>
-            <h1 className="mt-3 font-display text-6xl font-extrabold leading-[0.9] tracking-[-0.05em]">
+            <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.05em] xl:text-6xl">
               CHERRY
               <br />
               <span className="text-[#C4122F]">OPS</span>
             </h1>
-            <p className="mt-4 max-w-xs text-sm text-white/40">
-              Agency CRM — led by Pheladi Mphahlele &amp; Danny van Vuuren.
+            <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
+              {activeHero.name} · {activeHero.label}
             </p>
           </div>
         </section>
 
-        {/* Right: sign-in only */}
-        <section className="relative flex flex-col justify-center px-8 py-12 sm:px-12 lg:border-l lg:border-white/10 lg:px-16">
-          <div className="mb-8 block lg:hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/hero/cherry-ops-hero.png"
-              alt=""
-              className="mb-6 h-48 w-full object-cover object-[50%_15%]"
-            />
+        {/* Right: compact form — fits viewport, demo list scrolls internally if needed */}
+        <section className="relative flex h-full min-h-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-10 lg:border-l lg:border-white/10 lg:px-12">
+          <div className="mb-4 shrink-0 lg:hidden">
             <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#C4122F]">
               Red Cherry Interactive
             </p>
-            <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight">
+            <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight">
               CHERRY <span className="text-[#C4122F]">OPS</span>
             </h1>
           </div>
 
-          <div className="w-full max-w-md">
-            <h2 className="font-display text-3xl font-bold tracking-tight">Enter workspace</h2>
-            <p className="mt-2 text-sm text-white/45">Demo roles for the contest walkthrough</p>
+          <div className="flex min-h-0 w-full max-w-md flex-col">
+            <h2 className="shrink-0 font-display text-2xl font-bold tracking-tight xl:text-3xl">
+              Enter workspace
+            </h2>
+            <p className="mt-1 shrink-0 text-xs text-white/45 sm:text-sm">
+              Demo roles for the contest walkthrough
+            </p>
 
             <form
               onSubmit={handleSubmit}
-              className="mt-8 space-y-4"
+              className="mt-4 shrink-0 space-y-3"
               autoComplete="off"
               data-lpignore="true"
               data-1p-ignore
@@ -256,7 +204,7 @@ export default function LoginPage() {
                 value=""
               />
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
                   Email
                 </label>
                 <input
@@ -267,11 +215,11 @@ export default function LoginPage() {
                   required
                   autoComplete="off"
                   placeholder="ceo@cherry-ops.demo"
-                  className="w-full border border-white/15 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-[#C4122F]"
+                  className="w-full border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white outline-none focus:border-[#C4122F]"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
                   Password
                 </label>
                 <input
@@ -282,12 +230,12 @@ export default function LoginPage() {
                   required
                   autoComplete="new-password"
                   placeholder="••••••••••••"
-                  className="w-full border border-white/15 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-[#C4122F]"
+                  className="w-full border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white outline-none focus:border-[#C4122F]"
                 />
               </div>
 
               {error && (
-                <p className="border border-[#C4122F]/40 bg-[#C4122F]/15 px-3 py-2 text-sm text-[#fecaca]">
+                <p className="border border-[#C4122F]/40 bg-[#C4122F]/15 px-3 py-2 text-xs text-[#fecaca]">
                   {error}
                 </p>
               )}
@@ -295,24 +243,24 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 bg-[#C4122F] py-3.5 text-sm font-bold uppercase tracking-[0.15em] text-white hover:bg-[#9E0E26] disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 bg-[#C4122F] py-3 text-sm font-bold uppercase tracking-[0.15em] text-white hover:bg-[#9E0E26] disabled:opacity-60"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {loading ? "Signing in…" : "Sign in"}
               </button>
             </form>
 
-            <div className="mt-10">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/35">
+            <div className="mt-5 flex min-h-0 flex-1 flex-col">
+              <p className="mb-2 shrink-0 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/35">
                 Demo access
               </p>
-              <div className="space-y-2">
-                {DEMO_ROLES.map((role) => (
+              <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+                {DEMO_ROLES.map((role, i) => (
                   <button
                     key={role.email}
                     type="button"
-                    onClick={() => fillRole(role)}
-                    className="flex w-full items-center gap-3 border px-4 py-3 text-left transition hover:border-[#C4122F]/60"
+                    onClick={() => fillRole(role, i)}
+                    className="flex w-full items-center gap-2.5 border px-3 py-2 text-left transition hover:border-[#C4122F]/60"
                     style={{
                       borderColor: email === role.email ? "#C4122F" : "rgba(255,255,255,0.1)",
                       background:
@@ -320,14 +268,16 @@ export default function LoginPage() {
                     }}
                   >
                     <div
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-xs font-bold text-white"
+                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-[10px] font-bold text-white"
                       style={{ background: email === role.email ? "#C4122F" : "#1a1a1a" }}
                     >
                       {role.initials}
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white">{role.name}</div>
-                      <div className="text-[11px] uppercase tracking-wider text-white/40">
+                    <div className="min-w-0">
+                      <div className="truncate text-xs font-semibold text-white sm:text-sm">
+                        {role.name}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-white/40">
                         {role.label}
                       </div>
                     </div>

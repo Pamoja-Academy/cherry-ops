@@ -12,9 +12,10 @@ interface TopBarProps {
 const ROLE_LABELS: Record<string, string> = {
   CEO: "CEO",
   CREATIVE_DIRECTOR: "Creative Director",
-  PRODUCTION: "Production",
-  MEDIA: "Media",
-  FINANCE: "Finance",
+  DIRECTOR: "Director",
+  PRODUCTION: "Production Director",
+  MEDIA: "Media Director",
+  FINANCE: "Finance Manager",
 };
 
 export function TopBar({ title, role, pendingCount }: TopBarProps) {

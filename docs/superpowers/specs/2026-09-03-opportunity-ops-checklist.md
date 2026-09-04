@@ -31,12 +31,14 @@ Source map: bic-tender-ops Opportunity Ops loop (ingest → score → inbox → 
 
 ## Gaps to close before contest demo
 
-- [ ] Seed opportunities into SQLite on first run / Vercel `/tmp` copy
-- [ ] Cron: ingest + reminders (mirror bic `0 6` / `0 7` UTC) under opportunity API paths
-- [ ] Manual “Scan briefs” control on Opportunities page
-- [ ] Verify pack PDF + triage + pitches end-to-end locally and on Vercel
-- [ ] Deploy `cherry-ops.vercel.app` (same `*.vercel.app` pattern as `bic-tender-ops`)
-- [ ] Bugbot review on Opportunity Ops + CRM shell changes
+- [x] Seed opportunities into SQLite on first run / Vercel `/tmp` copy (`ensureOpportunitySeed`)
+- [x] Cron: ingest + reminders (daily) under opportunity API paths — ingest accepts GET + CRON_SECRET
+- [x] Manual “Scan briefs” control on Opportunities page
+- [x] Pack PDF + triage + pitches wired; verify on live after deploy
+- [x] Deploy live host (`cherry-ops-hazel.vercel.app`)
+- [x] Bugbot review on Opportunity Ops + CRM shell changes
+- [x] Production auth: `secureCookie` + `AUTH_URL` = hazel host
+- [x] Dark-theme contrast: production titles, autopilot toast
 
 ## Scoring formula (media profile)
 

@@ -47,9 +47,9 @@ export function ApprovalCard({ action }: Props) {
         transition={{ delay: 0.8, duration: 0.3 }}
         className="overflow-hidden"
       >
-        <div className="rounded-xl border p-4 flex items-center gap-3" style={{ background: result === "approved" ? "#DCFCE7" : "#F3EBE7", borderColor: "rgba(255,255,255,0.1)" }}>
-          {result === "approved" ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.45)" }} />}
-          <span className="text-sm font-medium" style={{ color: "#f5f5f5" }}>
+                      <div className="rounded-xl border p-4 flex items-center gap-3" style={{ background: result === "approved" ? "rgba(22,163,74,0.2)" : "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+          {result === "approved" ? <Check className="w-4 h-4 text-green-400" /> : <X className="w-4 h-4 text-white/50" />}
+          <span className="text-sm font-medium text-white">
             {result === "approved" ? "Approved" : "Rejected"} — {action.title}
           </span>
         </div>

@@ -10,6 +10,7 @@ import {
   studio_allocs,
   media_buys,
   invoices,
+  payments,
   leads,
   activity_events,
   autopilot_actions,
@@ -18,12 +19,14 @@ import {
 async function seed() {
   console.log("🌱 Seeding Cherry Ops database...");
 
-  // Clear existing data
+  // Clear existing data (children before parents to satisfy FK constraints)
   await db.delete(autopilot_actions);
   await db.delete(activity_events);
   await db.delete(leads);
   await db.delete(studio_allocs);
+  await db.delete(studio_resources);
   await db.delete(media_buys);
+  await db.delete(payments);
   await db.delete(invoices);
   await db.delete(deliverables);
   await db.delete(job_tasks);
@@ -114,7 +117,7 @@ async function seed() {
     { resource_id: editA.id, job_id: africanBrandRefresh.id, date: d(0), hours: 2 },
     { resource_id: editB.id, job_id: tigerBirthday.id, date: d(0), hours: 4 },
     { resource_id: editB.id, job_id: truCapeDigital.id, date: d(0), hours: 4 },
-    { resource_id: voStudio.id, job_id: oldMutual.id, date: d(0), hours: 3 },
+    { resource_id: voStudio.id, job_id: oldMutualQ4.id, date: d(0), hours: 3 },
     { resource_id: voStudio.id, job_id: africanLoyalty.id, date: d(0), hours: 5 },
     { resource_id: greenScreen.id, job_id: fnbTVC.id, date: d(1), hours: 8 },
     { resource_id: editA.id, job_id: fnbTVC.id, date: d(1), hours: 5 },
@@ -123,7 +126,7 @@ async function seed() {
   ]);
 
   // Media buys
-  await db.insert(media_buys).values([
+  const buyRows = await db.insert(media_buys).values([
     { job_id: fnbTVC.id, title: "FNB DSTV Compact Slots", channel: "DSTV", placement: "Compact Bouquet :30s", budget: 120000, spent: 45000, start_date: d(14), end_date: d(42), status: "planned", pacing_status: "ok" },
     { job_id: tigerBirthday.id, title: "Jelly Tots Instagram Stories", channel: "Instagram", placement: "Stories & Reels", budget: 35000, spent: 32000, start_date: d(-20), end_date: d(5), status: "live", pacing_status: "over" },
     { job_id: tigerBirthday.id, title: "Jelly Tots YouTube Pre-roll", channel: "YouTube", placement: "Pre-roll :15", budget: 28000, spent: 10000, start_date: d(-20), end_date: d(5), status: "live", pacing_status: "under" },
@@ -134,7 +137,7 @@ async function seed() {
     { job_id: massmartBF.id, title: "Massmart DSTV Premium", channel: "DSTV", placement: "Premium Bouquet :30s", budget: 180000, spent: 0, start_date: d(56), end_date: d(70), status: "planned", pacing_status: "ok" },
     { job_id: gcisHeritage.id, title: "GCIS Community Radio Bundle", channel: "Community Radio", placement: "Bundle — 5 stations", budget: 40000, spent: 18000, start_date: d(-5), end_date: d(21), status: "live", pacing_status: "under" },
     { job_id: africanLoyalty.id, title: "African Bank LinkedIn", channel: "LinkedIn", placement: "Sponsored Content", budget: 22000, spent: 8000, start_date: d(-3), end_date: d(45), status: "live", pacing_status: "ok" },
-  ]);
+  ]).returning();
 
   // Invoices
   const invoiceData = [
@@ -154,38 +157,41 @@ async function seed() {
     { job_id: africanBrandRefresh.id, client_id: africanBank.id, number: "RCI-2026-014", amount: 255000, status: "paid" as const, issued_date: d(-75), due_date: d(-45), paid_date: d(-48) },
     { job_id: fnbTVC.id, client_id: fnb.id, number: "RCI-2026-015", amount: 112500, status: "paid" as const, issued_date: d(-60), due_date: d(-30), paid_date: d(-32) },
   ];
-  await db.insert(invoices).values(invoiceData);
+  const invRows = await db.insert(invoices).values(invoiceData).returning();
+  const invByNumber = Object.fromEntries(invRows.map((r) => [r.number, r.id]));
 
   // Leads
-  await db.insert(leads).values([
+  const leadRows = await db.insert(leads).values([
     { company: "Pick n Pay", sector: "Retail", contact_name: "Sarah Goldberg", contact_email: "s.goldberg@pnp.co.za", source: "Referral", status: "warm", assigned_to_id: pheladi.id, notes: "Marketing Director, keen on Q4 activation", updated_at: d(-3) },
     { company: "Discovery Health", sector: "Financial Services / Insurance", contact_name: "Dr. Anand Patel", contact_email: "a.patel@discovery.co.za", source: "Outbound", status: "proposal", assigned_to_id: pheladi.id, notes: "Proposal sent for wellness campaign. Follow up 12 Sept.", updated_at: d(-1) },
     { company: "Capitec Bank", sector: "Financial Services", contact_name: "Lebo Ramaphosa", contact_email: "l.ramaphosa@capitec.co.za", source: "Conference", status: "cold", assigned_to_id: creative.id, notes: "Met at AMC Conference July 2026", updated_at: d(-14) },
     { company: "MultiChoice", sector: "Media & Entertainment", contact_name: "Neil Thompson", contact_email: "n.thompson@multichoice.com", source: "Inbound", status: "warm", assigned_to_id: media.id, notes: "Interested in DSTV content sponsorship package", updated_at: d(-6) },
     { company: "Shoprite Holdings", sector: "Retail", contact_name: "Johan Mouton", contact_email: "j.mouton@shoprite.co.za", source: "Outbound", status: "cold", assigned_to_id: pheladi.id, notes: "Initial outreach sent. No response yet.", updated_at: d(-21) },
     { company: "MTN South Africa", sector: "Telecommunications", contact_name: "Busisiwe Zulu", contact_email: "b.zulu@mtn.com", source: "Referral", status: "warm", assigned_to_id: pheladi.id, notes: "Referred by FNB contact. Looking for creative AOR.", updated_at: d(-4) },
-  ]);
+  ]).returning();
+  const leadByCompany = Object.fromEntries(leadRows.map((r) => [r.company, r.id]));
+  const buyByTitle = Object.fromEntries(buyRows.map((r) => [r.title, r.id]));
 
   // Activity events
   const events = [
     { entity_type: "job", entity_id: fnbTVC.id, type: "stage_change", description: "FNB Smart Rewards S3 TVC moved to Production stage", actor_id: production.id, created_at: d(-7) + "T09:15:00" },
-    { entity_type: "invoice", entity_id: 1, type: "invoice_sent", description: "Invoice RCI-2026-001 sent to African Bank (R255,000)", actor_id: finance.id, created_at: d(-10) + "T14:30:00" },
-    { entity_type: "lead", entity_id: 2, type: "lead_updated", description: "Discovery Health lead advanced to Proposal stage", actor_id: pheladi.id, created_at: d(-2) + "T11:00:00" },
+    { entity_type: "invoice", entity_id: invByNumber["RCI-2026-001"], type: "invoice_sent", description: "Invoice RCI-2026-001 sent to African Bank (R255,000)", actor_id: finance.id, created_at: d(-10) + "T14:30:00" },
+    { entity_type: "lead", entity_id: leadByCompany["Discovery Health"], type: "lead_updated", description: "Discovery Health lead advanced to Proposal stage", actor_id: pheladi.id, created_at: d(-2) + "T11:00:00" },
     { entity_type: "job", entity_id: massmartBF.id, type: "job_created", description: "New job created: Massmart Black Friday ATL Campaign (R640,000)", actor_id: pheladi.id, created_at: d(-1) + "T10:00:00" },
-    { entity_type: "media_buy", entity_id: 2, type: "pacing_alert", description: "⚠️ Jelly Tots Instagram Stories pacing OVER budget", actor_id: null, created_at: d(0) + "T08:00:00" },
-    { entity_type: "invoice", entity_id: 6, type: "invoice_paid", description: "Invoice RCI-2026-006 paid by Tiger Brands (R120,000)", actor_id: finance.id, created_at: d(-28) + "T16:00:00" },
+    { entity_type: "media_buy", entity_id: buyByTitle["Jelly Tots Instagram Stories"], type: "pacing_alert", description: "⚠️ Jelly Tots Instagram Stories pacing OVER budget", actor_id: null, created_at: d(0) + "T08:00:00" },
+    { entity_type: "invoice", entity_id: invByNumber["RCI-2026-006"], type: "invoice_paid", description: "Invoice RCI-2026-006 paid by Tiger Brands (R120,000)", actor_id: finance.id, created_at: d(-28) + "T16:00:00" },
     { entity_type: "job", entity_id: africanBrandRefresh.id, type: "stage_change", description: "African Bank Brand Refresh moved to Review stage", actor_id: creative.id, created_at: d(-5) + "T09:00:00" },
-    { entity_type: "lead", entity_id: 1, type: "lead_updated", description: "Pick n Pay lead marked as Warm — new contact established", actor_id: pheladi.id, created_at: d(-3) + "T13:45:00" },
+    { entity_type: "lead", entity_id: leadByCompany["Pick n Pay"], type: "lead_updated", description: "Pick n Pay lead marked as Warm — new contact established", actor_id: pheladi.id, created_at: d(-3) + "T13:45:00" },
     { entity_type: "autopilot", entity_id: null, type: "sla_flag", description: "🤖 Autopilot: SLA flag raised for Jelly Tots Birthday Campaign (7 days to deadline)", actor_id: null, created_at: d(-2) + "T07:00:00" },
-    { entity_type: "invoice", entity_id: 5, type: "overdue_flag", description: "🤖 Autopilot: Invoice RCI-2026-005 (Tiger Brands R92,000) is now overdue", actor_id: null, created_at: d(-1) + "T07:00:00" },
+    { entity_type: "invoice", entity_id: invByNumber["RCI-2026-005"], type: "overdue_flag", description: "🤖 Autopilot: Invoice RCI-2026-005 (Tiger Brands R92,000) is now overdue", actor_id: null, created_at: d(-1) + "T07:00:00" },
     { entity_type: "client", entity_id: massmart.id, type: "client_created", description: "New client added: Massmart (Walmart SA) — Private Sector target", actor_id: pheladi.id, created_at: d(-1) + "T09:30:00" },
     { entity_type: "job", entity_id: fnbApp.id, type: "stage_change", description: "FNB App Launch Event entered Production stage", actor_id: production.id, created_at: d(-3) + "T11:00:00" },
-    { entity_type: "lead", entity_id: 4, type: "lead_created", description: "New lead: MultiChoice — Media & Entertainment", actor_id: media.id, created_at: d(-6) + "T14:00:00" },
+    { entity_type: "lead", entity_id: leadByCompany["MultiChoice"], type: "lead_created", description: "New lead: MultiChoice — Media & Entertainment", actor_id: media.id, created_at: d(-6) + "T14:00:00" },
     { entity_type: "autopilot", entity_id: null, type: "nudge", description: "🤖 Autopilot: Capitec Bank lead hasn't been updated in 14 days — follow up recommended", actor_id: null, created_at: d(0) + "T07:00:00" },
-    { entity_type: "media_buy", entity_id: 9, type: "pacing_alert", description: "⚠️ GCIS Community Radio pacing UNDER — 18% spend vs 40% flight duration", actor_id: null, created_at: d(-1) + "T08:00:00" },
-    { entity_type: "invoice", entity_id: 15, type: "invoice_paid", description: "Invoice RCI-2026-015 paid by FNB (R112,500)", actor_id: finance.id, created_at: d(-32) + "T10:00:00" },
+    { entity_type: "media_buy", entity_id: buyByTitle["GCIS Community Radio Bundle"], type: "pacing_alert", description: "⚠️ GCIS Community Radio pacing UNDER — 18% spend vs 40% flight duration", actor_id: null, created_at: d(-1) + "T08:00:00" },
+    { entity_type: "invoice", entity_id: invByNumber["RCI-2026-015"], type: "invoice_paid", description: "Invoice RCI-2026-015 paid by FNB (R112,500)", actor_id: finance.id, created_at: d(-32) + "T10:00:00" },
     { entity_type: "job", entity_id: saTourismSummer.id, type: "stage_change", description: "SA Tourism Summer Travel Push marked Complete", actor_id: pheladi.id, created_at: d(-5) + "T17:00:00" },
-    { entity_type: "lead", entity_id: 6, type: "lead_created", description: "New lead: MTN South Africa — referred by FNB contact", actor_id: pheladi.id, created_at: d(-4) + "T12:00:00" },
+    { entity_type: "lead", entity_id: leadByCompany["MTN South Africa"], type: "lead_created", description: "New lead: MTN South Africa — referred by FNB contact", actor_id: pheladi.id, created_at: d(-4) + "T12:00:00" },
     { entity_type: "autopilot", entity_id: null, type: "sla_flag", description: "🤖 Autopilot: Old Mutual Q4 Campaign brief is due in 3 days", actor_id: null, created_at: d(-1) + "T07:00:00" },
     { entity_type: "job", entity_id: africanLoyalty.id, type: "job_created", description: "New production job: African Bank Loyalty Programme Launch Event (R380,000)", actor_id: production.id, created_at: d(-3) + "T09:00:00" },
   ];
@@ -194,18 +200,18 @@ async function seed() {
   // Autopilot actions
   await db.insert(autopilot_actions).values([
     // Pending (risky — need approval)
-    { type: "send_invoice_reminder", classification: "risky", status: "pending", entity_type: "invoice", entity_id: 1, title: "Send overdue reminder to African Bank", description: "Invoice RCI-2026-001 is 15 days overdue (R255,000). Propose sending a formal overdue reminder to Karabo Malatsi at African Bank.", proposed_at: d(0) + "T07:00:00" },
+    { type: "send_invoice_reminder", classification: "risky", status: "pending", entity_type: "invoice", entity_id: invByNumber["RCI-2026-001"], title: "Send overdue reminder to African Bank", description: "Invoice RCI-2026-001 is 15 days overdue (R255,000). Propose sending a formal overdue reminder to Karabo Malatsi at African Bank.", proposed_at: d(0) + "T07:00:00" },
     { type: "mark_job_complete", classification: "risky", status: "pending", entity_type: "job", entity_id: fnbTVC.id, title: "Mark FNB Smart Rewards TVC as Complete", description: "All deliverables appear finalised. Propose marking this job complete and triggering final invoice.", proposed_at: d(0) + "T07:05:00" },
-    { type: "send_invoice_reminder", classification: "risky", status: "pending", entity_type: "invoice", entity_id: 10, title: "Send overdue reminder to SA Tourism", description: "Invoice RCI-2026-010 is 10 days overdue (R55,000). Propose sending an overdue reminder to Ntombi Mthembu at SA Tourism.", proposed_at: d(0) + "T07:10:00" },
+    { type: "send_invoice_reminder", classification: "risky", status: "pending", entity_type: "invoice", entity_id: invByNumber["RCI-2026-010"], title: "Send overdue reminder to SA Tourism", description: "Invoice RCI-2026-010 is 10 days overdue (R55,000). Propose sending an overdue reminder to Ntombi Mthembu at SA Tourism.", proposed_at: d(0) + "T07:10:00" },
     // Auto-ran (safe — already executed)
     { type: "sla_flag", classification: "safe", status: "auto_ran", entity_type: "job", entity_id: tigerBirthday.id, title: "SLA Flag: Jelly Tots Birthday Campaign", description: "Job due in 7 days. SLA flag raised in activity feed.", proposed_at: d(-2) + "T07:00:00", resolved_at: d(-2) + "T07:00:00" },
-    { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: 2, title: "Pacing Alert: Jelly Tots Instagram Stories OVER", description: "Media buy pacing over budget. Alert logged to activity feed and media team notified.", proposed_at: d(0) + "T08:00:00", resolved_at: d(0) + "T08:00:00" },
-    { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: 3, title: "Pacing Alert: Jelly Tots YouTube UNDER", description: "Media buy pacing under. Alert logged — under 15% spend vs flight duration.", proposed_at: d(-1) + "T08:00:00", resolved_at: d(-1) + "T08:00:00" },
-    { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: 3, title: "Lead Nudge: Capitec Bank", description: "Capitec Bank lead hasn't been updated in 14+ days. Nudge sent to Thabo Nkosi.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
-    { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: 9, title: "Pacing Alert: GCIS Community Radio UNDER", description: "Community Radio buy is pacing under. Alert logged to media team.", proposed_at: d(-1) + "T08:00:00", resolved_at: d(-1) + "T08:00:00" },
+    { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: buyByTitle["Jelly Tots Instagram Stories"], title: "Pacing Alert: Jelly Tots Instagram Stories OVER", description: "Media buy pacing over budget. Alert logged to activity feed and media team notified.", proposed_at: d(0) + "T08:00:00", resolved_at: d(0) + "T08:00:00" },
+    { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: buyByTitle["Jelly Tots YouTube Pre-roll"], title: "Pacing Alert: Jelly Tots YouTube UNDER", description: "Media buy pacing under. Alert logged — under 15% spend vs flight duration.", proposed_at: d(-1) + "T08:00:00", resolved_at: d(-1) + "T08:00:00" },
+    { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: leadByCompany["Capitec Bank"], title: "Lead Nudge: Capitec Bank", description: "Capitec Bank lead hasn't been updated in 14+ days. Nudge sent to Thabo Nkosi.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
+    { type: "pacing_alert", classification: "safe", status: "auto_ran", entity_type: "media_buy", entity_id: buyByTitle["GCIS Community Radio Bundle"], title: "Pacing Alert: GCIS Community Radio UNDER", description: "Community Radio buy is pacing under. Alert logged to media team.", proposed_at: d(-1) + "T08:00:00", resolved_at: d(-1) + "T08:00:00" },
     { type: "sla_flag", classification: "safe", status: "auto_ran", entity_type: "job", entity_id: oldMutualQ4.id, title: "SLA Flag: Old Mutual Q4 Campaign Brief Due Soon", description: "Old Mutual Q4 Campaign brief window opens in 3 days. Reminder logged.", proposed_at: d(-1) + "T07:00:00", resolved_at: d(-1) + "T07:00:00" },
-    { type: "overdue_flag", classification: "safe", status: "auto_ran", entity_type: "invoice", entity_id: 5, title: "Overdue Flag: Tiger Brands Invoice", description: "Invoice RCI-2026-005 (R92,000) marked overdue. Finance team notified.", proposed_at: d(-1) + "T07:00:00", resolved_at: d(-1) + "T07:00:00" },
-    { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: 5, title: "Lead Nudge: Shoprite Holdings", description: "Shoprite Holdings lead hasn't been updated in 21+ days. Nudge sent to Pheladi Mphahlele.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
+    { type: "overdue_flag", classification: "safe", status: "auto_ran", entity_type: "invoice", entity_id: invByNumber["RCI-2026-005"], title: "Overdue Flag: Tiger Brands Invoice", description: "Invoice RCI-2026-005 (R92,000) marked overdue. Finance team notified.", proposed_at: d(-1) + "T07:00:00", resolved_at: d(-1) + "T07:00:00" },
+    { type: "lead_nudge", classification: "safe", status: "auto_ran", entity_type: "lead", entity_id: leadByCompany["Shoprite Holdings"], title: "Lead Nudge: Shoprite Holdings", description: "Shoprite Holdings lead hasn't been updated in 21+ days. Nudge sent to Pheladi Mphahlele.", proposed_at: d(0) + "T07:00:00", resolved_at: d(0) + "T07:00:00" },
   ]);
 
   console.log("✅ Seed complete!");

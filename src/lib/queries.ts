@@ -15,6 +15,7 @@ import {
   client_contacts,
   opportunities,
   opportunity_reminders,
+  workspace_settings,
 } from "@/db/schema";
 import { eq, and, desc, sql, count, sum, lt, ne } from "drizzle-orm";
 
@@ -300,6 +301,32 @@ export async function getProductionTasks() {
 
 export async function getTeamMembers() {
   return db.select().from(users).orderBy(users.role);
+}
+
+const DEFAULT_WORKSPACE = {
+  id: 0,
+  agency_name: "Red Cherry Interactive",
+  headquarters: "Rivonia, Sandton, Johannesburg",
+  founded: "1996 · 30 Years",
+  certification: "Level 1 BBBEE · Female-Owned",
+  services: "Strategy · Creative · Media · Production · PR · Digital · Activations",
+  updated_at: new Date().toISOString(),
+};
+
+export async function getWorkspaceSettings() {
+  const row = await db.select().from(workspace_settings).limit(1).get();
+  if (row) return row;
+  const [created] = await db
+    .insert(workspace_settings)
+    .values({
+      agency_name: DEFAULT_WORKSPACE.agency_name,
+      headquarters: DEFAULT_WORKSPACE.headquarters,
+      founded: DEFAULT_WORKSPACE.founded,
+      certification: DEFAULT_WORKSPACE.certification,
+      services: DEFAULT_WORKSPACE.services,
+    })
+    .returning();
+  return created ?? DEFAULT_WORKSPACE;
 }
 
 // ── Opportunity Ops ───────────────────────────────────────────────────────────

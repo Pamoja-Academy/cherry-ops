@@ -1,7 +1,8 @@
 import { getClientById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone, Building2 } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
+import { EditClientPanel } from "@/components/clients/EditClientPanel";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(n);
@@ -85,6 +86,21 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <EditClientPanel
+          client={{
+            id: client.id,
+            name: client.name,
+            sector: client.sector,
+            industry: client.industry,
+            contact_name: client.contact_name,
+            contact_email: client.contact_email,
+            contact_phone: client.contact_phone,
+            is_private_sector: client.is_private_sector,
+            notes: client.notes,
+            status: client.status as "active" | "inactive",
+          }}
+        />
+
         {/* Jobs */}
         <div className="rounded-xl border p-5" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
           <h3 className="font-display font-bold mb-4" style={{ color: "#f5f5f5" }}>Jobs ({client.jobs.length})</h3>
@@ -111,7 +127,7 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
         </div>
 
         {/* Invoices */}
-        <div className="rounded-xl border p-5" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
+        <div className="rounded-xl border p-5 lg:col-span-2" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
           <h3 className="font-display font-bold mb-4" style={{ color: "#f5f5f5" }}>Invoices ({client.invoices.length})</h3>
           <div className="space-y-2">
             {client.invoices.length === 0 && <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>No invoices yet.</p>}

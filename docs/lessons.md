@@ -17,3 +17,5 @@
 - Expanding the cast must PRESERVE dual-hero presence motion (Ken Burns, bloom, light sweep, particles); never strip cinematic interactivity down to a flat crossfade slideshow.
 - Only Pheladi may have an afro silhouette; Faye/Robbyn/anyone else must not carry a circular afro-shaped halo/aura that reads as standing in front of Pheladi.
 - The six-person team wallpaper must be rendered on the login hero surface (not only as a faded CRM backdrop) or it is "not rendered" for the user.
+- Red Cherry **Interactive** means writable CRM flows (create/edit/save), not seeded read-only screens — Settings and core entities must persist changes.
+- Visual login work that only exists on preview/SSO branches is invisible on the production alias — promote to `cherry-ops-hazel.vercel.app` (or merge to the production branch) or the user correctly sees "no changes".

@@ -216,3 +216,16 @@ export const opportunity_reminders = sqliteTable("opportunity_reminders", {
   }).notNull().default("pending"),
   payload: text("payload"),
 });
+
+/** Single-row agency workspace profile — editable in Settings */
+export const workspace_settings = sqliteTable("workspace_settings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  agency_name: text("agency_name").notNull().default("Red Cherry Interactive"),
+  headquarters: text("headquarters").notNull().default("Rivonia, Sandton, Johannesburg"),
+  founded: text("founded").notNull().default("1996 · 30 Years"),
+  certification: text("certification").notNull().default("Level 1 BBBEE · Female-Owned"),
+  services: text("services")
+    .notNull()
+    .default("Strategy · Creative · Media · Production · PR · Digital · Activations"),
+  updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),
+});

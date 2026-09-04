@@ -17,6 +17,7 @@ import {
   autopilot_actions,
   opportunities,
   opportunity_reminders,
+  workspace_settings,
 } from "./schema";
 import { briefToOpportunityRow, getDemoBriefs } from "@/lib/opportunity/ingest";
 
@@ -58,6 +59,15 @@ function ensureOpportunityTables() {
       status TEXT NOT NULL DEFAULT 'pending',
       payload TEXT
     );
+    CREATE TABLE IF NOT EXISTS workspace_settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agency_name TEXT NOT NULL DEFAULT 'Red Cherry Interactive',
+      headquarters TEXT NOT NULL DEFAULT 'Rivonia, Sandton, Johannesburg',
+      founded TEXT NOT NULL DEFAULT '1996 · 30 Years',
+      certification TEXT NOT NULL DEFAULT 'Level 1 BBBEE · Female-Owned',
+      services TEXT NOT NULL DEFAULT 'Strategy · Creative · Media · Production · PR · Digital · Activations',
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 }
 
@@ -83,6 +93,15 @@ async function seed() {
   await db.delete(clients);
   await db.delete(studio_resources);
   await db.delete(users);
+  await db.delete(workspace_settings);
+
+  await db.insert(workspace_settings).values({
+    agency_name: "Red Cherry Interactive",
+    headquarters: "Rivonia, Sandton, Johannesburg",
+    founded: "1996 · 30 Years",
+    certification: "Level 1 BBBEE · Female-Owned",
+    services: "Strategy · Creative · Media · Production · PR · Digital · Activations",
+  });
 
   // Users
   const [pheladi, creative, director, production, media, finance] = await db.insert(users).values([

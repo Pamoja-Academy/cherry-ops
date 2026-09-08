@@ -11,7 +11,7 @@ function roleHome(role: string | undefined): string {
     case "CEO":
       return "/dashboard";
     case "CREATIVE_DIRECTOR":
-      return "/jobs";
+      return "/events";
     case "DIRECTOR":
       return "/clients";
     case "PRODUCTION":
@@ -115,14 +115,11 @@ export default function LoginPage() {
   const userPicked = useRef(false);
   const router = useRouter();
 
+  // Clear autofill once on mount — do not race-clear after a demo role is picked.
   useEffect(() => {
+    if (userPicked.current) return;
     setEmail("");
     setPassword("");
-    const t = setTimeout(() => {
-      setEmail("");
-      setPassword("");
-    }, 50);
-    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -152,20 +149,31 @@ export default function LoginPage() {
     }
   }
 
+  function applyRoleCredentials(role: (typeof DEMO_ROLES)[0]) {
+    userPicked.current = true;
+    setPaused(true);
+    setEmail(role.email);
+    setPassword(role.password);
+    setError("");
+  }
+
   function selectSlide(index: number, lock = false) {
     setHeroIndex(index);
     if (lock) {
       userPicked.current = true;
       setPaused(true);
     }
+    // Cast tabs 1..n map to DEMO_ROLES — fill form credentials underneath.
+    if (index >= 1) {
+      const role = DEMO_ROLES[index - 1];
+      if (role) applyRoleCredentials(role);
+    }
   }
 
   function fillRole(role: (typeof DEMO_ROLES)[0], roleIndex: number) {
-    setEmail(role.email);
-    setPassword(role.password);
-    setError("");
+    applyRoleCredentials(role);
     // DEMO_ROLES map to HERO_SLIDES index + 1 (0 is team)
-    selectSlide(roleIndex + 1, true);
+    setHeroIndex(roleIndex + 1);
   }
 
   const active = HERO_SLIDES[heroIndex];
@@ -495,13 +503,23 @@ export default function LoginPage() {
                         style={{ objectPosition: role.focus }}
                       />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="truncate text-xs font-semibold text-white sm:text-sm">
                         {role.name}
                       </div>
                       <div className="text-[10px] uppercase tracking-wider text-white/40">
                         {role.label}
                       </div>
+                      {email === role.email && (
+                        <div className="mt-1.5 space-y-0.5 border-t border-white/10 pt-1.5">
+                          <p className="truncate font-mono text-[10px] text-white/70">
+                            {role.email}
+                          </p>
+                          <p className="truncate font-mono text-[10px] text-white/55">
+                            {role.password}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </button>
                 ))}

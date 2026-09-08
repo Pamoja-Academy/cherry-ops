@@ -83,6 +83,46 @@ sqlite.exec(`
     services TEXT NOT NULL DEFAULT 'Strategy · Creative · Media · Production · PR · Digital · Activations',
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS activations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER NOT NULL REFERENCES clients(id),
+    title TEXT NOT NULL,
+    type TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
+    stage TEXT NOT NULL DEFAULT 'brief',
+    brief TEXT,
+    venue TEXT,
+    start_date TEXT,
+    event_date TEXT,
+    due_date TEXT,
+    value REAL,
+    owner_id INTEGER REFERENCES users(id),
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS schedule_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    kind TEXT NOT NULL DEFAULT 'other',
+    status TEXT NOT NULL DEFAULT 'planned',
+    owner_id INTEGER REFERENCES users(id),
+    start_at TEXT,
+    end_at TEXT,
+    related_activation_id INTEGER REFERENCES activations(id),
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS event_tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    activation_id INTEGER REFERENCES activations(id),
+    schedule_item_id INTEGER REFERENCES schedule_items(id),
+    title TEXT NOT NULL,
+    assignee_id INTEGER REFERENCES users(id),
+    status TEXT NOT NULL DEFAULT 'todo',
+    due_date TEXT,
+    studio_resource_id INTEGER,
+    completed_at TEXT
+  );
 `);
 
 export const db = drizzle(sqlite, { schema });

@@ -6,12 +6,12 @@ import { Loader2 } from "lucide-react";
 
 const STAGES = ["brief", "production", "review", "delivery", "complete"] as const;
 
-export function JobStageSelect({
-  jobId,
+export function ActivationStageSelect({
+  activationId,
   stage,
   compact = false,
 }: {
-  jobId: number;
+  activationId: number;
   stage: (typeof STAGES)[number];
   compact?: boolean;
 }) {
@@ -26,7 +26,7 @@ export function JobStageSelect({
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/jobs/${jobId}`, {
+      const res = await fetch(`/api/activations/${activationId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stage: next }),

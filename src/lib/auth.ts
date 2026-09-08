@@ -93,7 +93,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 export function getRoleHome(role: UserRole): string {
   switch (role) {
     case "CEO": return "/dashboard";
-    case "CREATIVE_DIRECTOR": return "/jobs";
+    case "CREATIVE_DIRECTOR": return "/events";
     case "DIRECTOR": return "/clients";
     case "PRODUCTION": return "/production";
     case "MEDIA": return "/media";

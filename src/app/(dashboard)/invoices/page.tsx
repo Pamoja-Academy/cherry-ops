@@ -54,7 +54,7 @@ export default async function InvoicesPage() {
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              {["Number", "Client", "Job", "Amount", "Status", "Due Date", "Overdue", "Actions"].map((h) => (
+              {["Number", "Client", "Activation", "Amount", "Status", "Due Date", "Overdue", "Actions"].map((h) => (
                 <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
                   {h}
                 </th>
@@ -73,7 +73,7 @@ export default async function InvoicesPage() {
                     <span className="text-sm" style={{ color: "#f5f5f5" }}>{inv.client?.name ?? "—"}</span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{inv.job?.title ?? "—"}</span>
+                    <span className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{inv.activation?.title ?? "—"}</span>
                   </td>
                   <td className="px-5 py-4">
                     <span className="text-sm font-bold" style={{ color: "#f5f5f5" }}>{fmt(inv.amount)}</span>

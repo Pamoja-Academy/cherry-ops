@@ -37,7 +37,7 @@ export default async function ClientsPage() {
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              {["Client", "Sector", "Account Manager", "Active Jobs", "Outstanding", ""].map((h) => (
+              {["Client", "Sector", "Account Manager", "Active Activations", "Outstanding", ""].map((h) => (
                 <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
                   {h}
                 </th>
@@ -93,9 +93,9 @@ export default async function ClientsPage() {
                   <td className="px-5 py-4">
                     <span
                       className="text-sm font-semibold"
-                      style={{ color: (client.active_jobs as number) > 0 ? "#1D4ED8" : "#8C8078" }}
+                      style={{ color: (client.active_activations as number) > 0 ? "#1D4ED8" : "#8C8078" }}
                     >
-                      {client.active_jobs as number}
+                      {client.active_activations as number}
                     </span>
                   </td>
                   <td className="px-5 py-4">

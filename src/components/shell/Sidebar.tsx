@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
-  Briefcase,
+  CalendarDays,
   Film,
   MonitorPlay,
   Radio,
@@ -23,7 +23,7 @@ import {
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/clients", icon: Users, label: "Clients" },
-  { href: "/jobs", icon: Briefcase, label: "Jobs" },
+  { href: "/events", icon: CalendarDays, label: "Events" },
   { href: "/production", icon: Film, label: "Production" },
   { href: "/studio", icon: MonitorPlay, label: "Studio" },
   { href: "/media", icon: Radio, label: "Media" },

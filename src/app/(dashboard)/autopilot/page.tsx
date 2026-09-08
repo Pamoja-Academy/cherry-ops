@@ -18,6 +18,7 @@ const TYPE_ICONS: Record<string, string> = {
   overdue_flag: "⚠️",
   send_invoice_reminder: "📧",
   mark_job_complete: "✅",
+  mark_activation_complete: "✅",
 };
 
 export default async function AutopilotPage() {

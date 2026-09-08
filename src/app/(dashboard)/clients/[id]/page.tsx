@@ -101,13 +101,13 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
           }}
         />
 
-        {/* Jobs */}
+        {/* Activations */}
         <div className="rounded-xl border p-5" style={{ background: "#111", borderColor: "rgba(255,255,255,0.1)" }}>
-          <h3 className="font-display font-bold mb-4" style={{ color: "#f5f5f5" }}>Jobs ({client.jobs.length})</h3>
+          <h3 className="font-display font-bold mb-4" style={{ color: "#f5f5f5" }}>Activations ({client.activations.length})</h3>
           <div className="space-y-2">
-            {client.jobs.length === 0 && <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>No jobs yet.</p>}
-            {client.jobs.map((job) => (
-              <Link key={job.id} href={`/jobs/${job.id}`}>
+            {client.activations.length === 0 && <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>No activations yet.</p>}
+            {client.activations.map((job) => (
+              <Link key={job.id} href={`/events/activations/${job.id}`}>
                 <div className="flex items-center justify-between p-3 rounded-lg border transition-colors hover:bg-wash" style={{ borderColor: "#F3EBE7" }}>
                   <div>
                     <div className="text-sm font-medium" style={{ color: "#f5f5f5" }}>{job.title}</div>

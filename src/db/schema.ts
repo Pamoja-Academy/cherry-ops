@@ -37,26 +37,57 @@ export const client_contacts = sqliteTable("client_contacts", {
   is_primary: integer("is_primary", { mode: "boolean" }).notNull().default(false),
 });
 
-export const jobs = sqliteTable("jobs", {
+/** Client-facing activations / campaigns / experiential work (replaces jobs). */
+export const activations = sqliteTable("activations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   client_id: integer("client_id").notNull().references(() => clients.id),
   title: text("title").notNull(),
-  type: text("type", { enum: ["campaign", "production", "event", "digital", "pr"] }).notNull(),
+  type: text("type", {
+    enum: ["activation", "campaign", "production", "digital", "pr"],
+  }).notNull(),
   status: text("status").notNull().default("active"),
   stage: text("stage", {
     enum: ["brief", "production", "review", "delivery", "complete"],
-  }).notNull().default("brief"),
+  })
+    .notNull()
+    .default("brief"),
   brief: text("brief"),
+  venue: text("venue"),
   start_date: text("start_date"),
+  event_date: text("event_date"),
   due_date: text("due_date"),
   value: real("value"),
   owner_id: integer("owner_id").references(() => users.id),
+  notes: text("notes"),
   created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
 });
 
-export const job_tasks = sqliteTable("job_tasks", {
+/** Internal event planning / project management (Scheduling tab). */
+export const schedule_items = sqliteTable("schedule_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  job_id: integer("job_id").notNull().references(() => jobs.id),
+  title: text("title").notNull(),
+  kind: text("kind", {
+    enum: ["shoot", "pitch_prep", "deadline", "crew", "studio_block", "other"],
+  })
+    .notNull()
+    .default("other"),
+  status: text("status", {
+    enum: ["planned", "in_progress", "done", "cancelled"],
+  })
+    .notNull()
+    .default("planned"),
+  owner_id: integer("owner_id").references(() => users.id),
+  start_at: text("start_at"),
+  end_at: text("end_at"),
+  related_activation_id: integer("related_activation_id").references(() => activations.id),
+  notes: text("notes"),
+  created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
+});
+
+export const event_tasks = sqliteTable("event_tasks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  activation_id: integer("activation_id").references(() => activations.id),
+  schedule_item_id: integer("schedule_item_id").references(() => schedule_items.id),
   title: text("title").notNull(),
   assignee_id: integer("assignee_id").references(() => users.id),
   status: text("status", { enum: ["todo", "in_progress", "done"] }).notNull().default("todo"),
@@ -67,12 +98,14 @@ export const job_tasks = sqliteTable("job_tasks", {
 
 export const deliverables = sqliteTable("deliverables", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  job_id: integer("job_id").notNull().references(() => jobs.id),
+  activation_id: integer("activation_id").notNull().references(() => activations.id),
   title: text("title").notNull(),
   type: text("type", { enum: ["tv", "radio", "digital", "print", "event"] }).notNull(),
   status: text("status", {
     enum: ["draft", "review", "approved", "delivered"],
-  }).notNull().default("draft"),
+  })
+    .notNull()
+    .default("draft"),
   due_date: text("due_date"),
 });
 
@@ -86,14 +119,14 @@ export const studio_resources = sqliteTable("studio_resources", {
 export const studio_allocs = sqliteTable("studio_allocs", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   resource_id: integer("resource_id").notNull().references(() => studio_resources.id),
-  job_id: integer("job_id").notNull().references(() => jobs.id),
+  activation_id: integer("activation_id").notNull().references(() => activations.id),
   date: text("date").notNull(),
   hours: real("hours").notNull(),
 });
 
 export const media_buys = sqliteTable("media_buys", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  job_id: integer("job_id").notNull().references(() => jobs.id),
+  activation_id: integer("activation_id").notNull().references(() => activations.id),
   title: text("title").notNull(),
   channel: text("channel").notNull(),
   placement: text("placement"),
@@ -103,21 +136,27 @@ export const media_buys = sqliteTable("media_buys", {
   end_date: text("end_date"),
   status: text("status", {
     enum: ["planned", "live", "complete", "paused"],
-  }).notNull().default("planned"),
+  })
+    .notNull()
+    .default("planned"),
   pacing_status: text("pacing_status", {
     enum: ["ok", "under", "over"],
-  }).notNull().default("ok"),
+  })
+    .notNull()
+    .default("ok"),
 });
 
 export const invoices = sqliteTable("invoices", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  job_id: integer("job_id").references(() => jobs.id),
+  activation_id: integer("activation_id").references(() => activations.id),
   client_id: integer("client_id").notNull().references(() => clients.id),
   number: text("number").notNull(),
   amount: real("amount").notNull(),
   status: text("status", {
     enum: ["draft", "sent", "overdue", "paid"],
-  }).notNull().default("draft"),
+  })
+    .notNull()
+    .default("draft"),
   issued_date: text("issued_date"),
   due_date: text("due_date"),
   paid_date: text("paid_date"),
@@ -140,7 +179,9 @@ export const leads = sqliteTable("leads", {
   source: text("source"),
   status: text("status", {
     enum: ["cold", "warm", "proposal", "won", "lost"],
-  }).notNull().default("cold"),
+  })
+    .notNull()
+    .default("cold"),
   assigned_to_id: integer("assigned_to_id").references(() => users.id),
   notes: text("notes"),
   created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
@@ -162,10 +203,14 @@ export const autopilot_actions = sqliteTable("autopilot_actions", {
   type: text("type").notNull(),
   classification: text("classification", {
     enum: ["safe", "risky"],
-  }).notNull().default("safe"),
+  })
+    .notNull()
+    .default("safe"),
   status: text("status", {
     enum: ["auto_ran", "pending", "approved", "rejected"],
-  }).notNull().default("pending"),
+  })
+    .notNull()
+    .default("pending"),
   entity_type: text("entity_type"),
   entity_id: integer("entity_id"),
   title: text("title").notNull(),
@@ -196,7 +241,9 @@ export const opportunities = sqliteTable("opportunities", {
   score_breakdown: text("score_breakdown"),
   triage_status: text("triage_status", {
     enum: ["pending", "approved", "discarded"],
-  }).notNull().default("pending"),
+  })
+    .notNull()
+    .default("pending"),
   triage_note: text("triage_note"),
   triaged_at: text("triaged_at"),
   triaged_by: integer("triaged_by").references(() => users.id),
@@ -213,7 +260,9 @@ export const opportunity_reminders = sqliteTable("opportunity_reminders", {
   sent_at: text("sent_at"),
   status: text("status", {
     enum: ["pending", "sent", "cancelled"],
-  }).notNull().default("pending"),
+  })
+    .notNull()
+    .default("pending"),
   payload: text("payload"),
 });
 

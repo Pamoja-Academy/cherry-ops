@@ -55,8 +55,8 @@ export default async function DashboardPage() {
           subtitle="Settled invoices"
         />
         <MetricPulse
-          label="Active Jobs"
-          value={String(metrics.activeJobs)}
+          label="Active Activations"
+          value={String(metrics.activeActivations)}
           iconName="Briefcase"
           color="#FCA5A5"
           subtitle="In flight"

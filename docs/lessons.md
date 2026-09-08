@@ -1,5 +1,6 @@
 # LESSONS
 
+- Cherry Ops stays on Drizzle/SQLite — do not introduce Prisma mid-feature even if the Prisma Cursor plugin is available; ORM swaps are a separate explicit reopen.
 - Never pass Lucide/React component functions as props from Server Components to Client Components — pass a serializable icon name string and resolve inside the client.
 - Cherry Ops demo logins must be product-domain role emails (ceo@cherry-ops.demo), not personal names or redcherry.demo / BICS-style addresses.
 - Never cross-contaminate client brands: Red Cherry / Cherry Ops must not reference BICS, bic-tender-ops, or other clients' emails, URLs, or copy.

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { autopilot_actions, activity_events, jobs, invoices, payments } from "@/db/schema";
+import { autopilot_actions, activity_events, activations, invoices, payments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const APPROVER_ROLES = new Set(["CEO", "FINANCE"]);
@@ -17,8 +17,12 @@ type Action = typeof autopilot_actions.$inferSelect;
 function executeApprovedAction(tx: Tx, action: Action) {
   const today = new Date().toISOString().split("T")[0];
 
-  if (action.type === "mark_job_complete" && action.entity_type === "job" && action.entity_id) {
-    tx.update(jobs).set({ stage: "complete" }).where(eq(jobs.id, action.entity_id)).run();
+  if (
+    (action.type === "mark_activation_complete" || action.type === "mark_job_complete") &&
+    (action.entity_type === "activation" || action.entity_type === "job") &&
+    action.entity_id
+  ) {
+    tx.update(activations).set({ stage: "complete" }).where(eq(activations.id, action.entity_id)).run();
     return;
   }
 

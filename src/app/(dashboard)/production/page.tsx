@@ -1,6 +1,6 @@
 import { getProductionTasks } from "@/lib/queries";
 import { TaskStatusSelect } from "@/components/production/TaskStatusSelect";
-import { JobStageSelect } from "@/components/jobs/JobStageSelect";
+import { ActivationStageSelect } from "@/components/events/ActivationStageSelect";
 import Link from "next/link";
 
 const STATUSES = ["todo", "in_progress", "done"] as const;
@@ -36,7 +36,7 @@ export default async function ProductionPage() {
           Production Board
         </h2>
         <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
-          {tasks.length} tasks — update task status and parent job stage
+          {tasks.length} tasks — update task status and parent activation stage
         </p>
       </div>
 
@@ -62,6 +62,12 @@ export default async function ProductionPage() {
               <div className="space-y-2 kanban-col">
                 {statusTasks.map((task) => {
                   const overdue = isOverdue(task.due_date, task.status);
+                  const parent = task.activation ?? task.schedule_item;
+                  const parentHref = task.activation
+                    ? `/events/activations/${task.activation.id}`
+                    : task.schedule_item
+                      ? `/events/scheduling/${task.schedule_item.id}`
+                      : null;
                   return (
                     <div
                       key={task.id}
@@ -78,13 +84,13 @@ export default async function ProductionPage() {
                       >
                         {task.title}
                       </div>
-                      {task.job && (
+                      {parent && parentHref && (
                         <Link
-                          href={`/jobs/${task.job.id}`}
+                          href={parentHref}
                           className="text-xs mb-2 block hover:underline"
                           style={{ color: "rgba(255,255,255,0.45)" }}
                         >
-                          {task.job.title}
+                          {parent.title}
                         </Link>
                       )}
                       <div className="flex items-center justify-between">
@@ -118,19 +124,16 @@ export default async function ProductionPage() {
                           </span>
                         </div>
                       )}
-                      <TaskStatusSelect
-                        taskId={task.id}
-                        status={task.status as Status}
-                      />
-                      {task.job && (
+                      <TaskStatusSelect taskId={task.id} status={task.status as Status} />
+                      {task.activation && (
                         <div className="mt-2">
                           <p className="mb-1 text-[10px] uppercase tracking-wider text-white/35">
-                            Job stage
+                            Activation stage
                           </p>
-                          <JobStageSelect
-                            jobId={task.job.id}
+                          <ActivationStageSelect
+                            activationId={task.activation.id}
                             stage={
-                              task.job.stage as
+                              task.activation.stage as
                                 | "brief"
                                 | "production"
                                 | "review"

@@ -52,21 +52,21 @@ export default async function StudioPage() {
                 </div>
               </div>
 
-              {/* Jobs using */}
-              {(r.jobsUsing as Array<{ id: number; title: string } | undefined>).length > 0 && (
+              {/* Activations using */}
+              {(r.activationsUsing as Array<{ id: number; title: string } | undefined>).length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "rgba(255,255,255,0.45)" }}>Active jobs</div>
+                  <div className="text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "rgba(255,255,255,0.45)" }}>Active activations</div>
                   <div className="space-y-1">
-                    {(r.jobsUsing as Array<{ id: number; title: string } | undefined>).filter(Boolean).map((job) => (
-                      <div key={job!.id} className="text-xs px-2 py-1 rounded-lg" style={{ background: "#1a1a1a", color: "#f5f5f5" }}>
-                        {job!.title}
+                    {(r.activationsUsing as Array<{ id: number; title: string } | undefined>).filter(Boolean).map((activation) => (
+                      <div key={activation!.id} className="text-xs px-2 py-1 rounded-lg" style={{ background: "#1a1a1a", color: "#f5f5f5" }}>
+                        {activation!.title}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              {(r.jobsUsing as unknown[]).length === 0 && (
-                <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>No jobs allocated today</div>
+              {(r.activationsUsing as unknown[]).length === 0 && (
+                <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>No activations allocated today</div>
               )}
             </div>
           );

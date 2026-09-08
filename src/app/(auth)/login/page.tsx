@@ -11,7 +11,7 @@ function roleHome(role: string | undefined): string {
     case "CEO":
       return "/dashboard";
     case "CREATIVE_DIRECTOR":
-      return "/jobs";
+      return "/events";
     case "DIRECTOR":
       return "/clients";
     case "PRODUCTION":

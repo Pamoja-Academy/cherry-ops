@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { activity_events, job_tasks } from "@/db/schema";
+import { activity_events, event_tasks } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const STATUSES = ["todo", "in_progress", "done"] as const;
 
 export async function PATCH(
   req: NextRequest,
-  ctx: RouteContext<"/api/job-tasks/[id]">
+  ctx: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   if (!session?.user) {
@@ -21,7 +21,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  const existing = await db.select().from(job_tasks).where(eq(job_tasks.id, taskId)).get();
+  const existing = await db.select().from(event_tasks).where(eq(event_tasks.id, taskId)).get();
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -32,16 +32,16 @@ export async function PATCH(
   }
 
   const [updated] = await db
-    .update(job_tasks)
+    .update(event_tasks)
     .set({
       status: body.status,
       completed_at: body.status === "done" ? new Date().toISOString() : null,
     })
-    .where(eq(job_tasks.id, taskId))
+    .where(eq(event_tasks.id, taskId))
     .returning();
 
   await db.insert(activity_events).values({
-    entity_type: "job_task",
+    entity_type: "event_task",
     entity_id: taskId,
     type: "task_status_change",
     description: `Task "${updated.title}" → ${updated.status}`,

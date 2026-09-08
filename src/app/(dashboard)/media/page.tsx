@@ -43,7 +43,7 @@ export default async function MediaPage() {
                 <tr key={buy.id} style={{ borderBottom: i < buys.length - 1 ? "1px solid #F3EBE7" : "none" }}>
                   <td className="px-5 py-4">
                     <div className="text-sm font-semibold" style={{ color: "#f5f5f5" }}>{buy.title}</div>
-                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{buy.job?.title ?? "—"}</div>
+                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{buy.activation?.title ?? "—"}</div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="text-sm font-medium" style={{ color: "#f5f5f5" }}>{buy.channel}</div>

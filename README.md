@@ -30,14 +30,15 @@ Open **http://localhost:3000** → click **CEO — Pheladi Mphahlele** on the lo
 1. **Login as CEO** → Command Centre: revenue, overdue invoices, private-sector leads
 2. **Leads** → Pick n Pay, Discovery, Capitec, MTN pipeline (private-sector growth focus)
 3. **Clients** → African Bank, Tiger Brands, FNB, Massmart (new target)
-4. **Jobs** → FNB Smart Rewards Season 3 TVC (production), Massmart Black Friday (brief)
-5. **Autopilot** → Approve/reject pending actions (invoice send, job complete)
-6. **Sign out → Creative Director** → Jobs kanban + production view
+4. **Events → Activations** → FNB Smart Rewards Season 3 TVC (production), Massmart Black Friday (brief)
+5. **Events → Scheduling** → Internal shoots, deadlines, studio blocks linked to activations
+6. **Autopilot** → Approve/reject pending actions (invoice send, activation complete)
+7. **Sign out → Creative Director** → Events kanban + production view
 
 ## What's included
 
 - CEO Command Centre with live metrics + autopilot feed
-- Clients (private-sector tagged) · Jobs/Campaigns kanban · Production board
+- Clients (private-sector tagged) · **Events** (Activations kanban + Scheduling) · Production board
 - Studio capacity · Media buy pacing · Invoice pipeline
 - **Private-Sector Pipeline** (leads) — supports Red Cherry's push for more FMCG, finance, retail clients
 - Guardrailed autopilot (safe auto-nudges; risky actions need approval)

@@ -24,7 +24,7 @@ export function TaskStatusSelect({
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/job-tasks/${taskId}`, {
+      const res = await fetch(`/api/event-tasks/${taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),

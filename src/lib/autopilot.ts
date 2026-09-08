@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import {
   invoices,
-  jobs,
+  activations,
   media_buys,
   leads,
   autopilot_actions,
@@ -61,21 +61,21 @@ export async function runAutopilotRules() {
     }
   }
 
-  // Rule 2: Jobs past due date and not complete → SLA flag
-  const overdueJobs = await db
+  // Rule 2: Activations past due date and not complete → SLA flag
+  const overdueActivations = await db
     .select()
-    .from(jobs)
-    .where(and(ne(jobs.stage, "complete"), lt(jobs.due_date!, today)));
+    .from(activations)
+    .where(and(ne(activations.stage, "complete"), lt(activations.due_date!, today)));
 
-  for (const job of overdueJobs) {
+  for (const activation of overdueActivations) {
     const existing = await db
       .select()
       .from(activity_events)
       .where(
         and(
           eq(activity_events.type, "sla_flag"),
-          eq(activity_events.entity_type, "job"),
-          eq(activity_events.entity_id, job.id),
+          eq(activity_events.entity_type, "activation"),
+          eq(activity_events.entity_id, activation.id),
           sql`substr(${activity_events.created_at}, 1, 10) = ${today}`
         )
       )
@@ -83,24 +83,24 @@ export async function runAutopilotRules() {
 
     if (!existing) {
       await db.insert(activity_events).values({
-        entity_type: "job",
-        entity_id: job.id,
+        entity_type: "activation",
+        entity_id: activation.id,
         type: "sla_flag",
-        description: `🤖 Autopilot: SLA overdue flag — ${job.title} is past due date`,
+        description: `🤖 Autopilot: SLA overdue flag — ${activation.title} is past due date`,
       });
 
       await db.insert(autopilot_actions).values({
         type: "sla_flag",
         classification: "safe",
         status: "auto_ran",
-        entity_type: "job",
-        entity_id: job.id,
-        title: `SLA Flag: ${job.title}`,
-        description: `Job is past its due date. SLA flag logged to activity feed.`,
+        entity_type: "activation",
+        entity_id: activation.id,
+        title: `SLA Flag: ${activation.title}`,
+        description: `Activation is past its due date. SLA flag logged to activity feed.`,
         resolved_at: today,
       });
 
-      results.push(`SLA flag: ${job.title}`);
+      results.push(`SLA flag: ${activation.title}`);
     }
   }
 

@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import {
   clients,
-  jobs,
+  activations,
+  schedule_items,
   invoices,
   leads,
   activity_events,
@@ -9,7 +10,7 @@ import {
   media_buys,
   studio_resources,
   studio_allocs,
-  job_tasks,
+  event_tasks,
   users,
   deliverables,
   client_contacts,
@@ -17,18 +18,18 @@ import {
   opportunity_reminders,
   workspace_settings,
 } from "@/db/schema";
-import { eq, and, desc, sql, count, sum, lt, ne } from "drizzle-orm";
+import { eq, and, desc, sql, count, sum, ne } from "drizzle-orm";
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 
 export async function getClients() {
   const allClients = await db.select().from(clients).orderBy(clients.name);
 
-  const jobCounts = await db
-    .select({ client_id: jobs.client_id, cnt: count() })
-    .from(jobs)
-    .where(ne(jobs.stage, "complete"))
-    .groupBy(jobs.client_id);
+  const activationCounts = await db
+    .select({ client_id: activations.client_id, cnt: count() })
+    .from(activations)
+    .where(ne(activations.stage, "complete"))
+    .groupBy(activations.client_id);
 
   const invoiceAmounts = await db
     .select({ client_id: invoices.client_id, total: sum(invoices.amount) })
@@ -40,7 +41,9 @@ export async function getClients() {
 
   return allClients.map((c) => ({
     ...c,
-    active_jobs: jobCounts.find((j) => j.client_id === c.id)?.cnt ?? 0,
+    active_activations: activationCounts.find((j) => j.client_id === c.id)?.cnt ?? 0,
+    /** @deprecated use active_activations */
+    active_jobs: activationCounts.find((j) => j.client_id === c.id)?.cnt ?? 0,
     outstanding: Number(invoiceAmounts.find((i) => i.client_id === c.id)?.total ?? 0),
     account_manager: managers.find((u) => u.id === c.account_manager_id),
   }));
@@ -50,11 +53,11 @@ export async function getClientById(id: number) {
   const client = await db.select().from(clients).where(eq(clients.id, id)).get();
   if (!client) return null;
 
-  const clientJobs = await db
+  const clientActivations = await db
     .select()
-    .from(jobs)
-    .where(eq(jobs.client_id, id))
-    .orderBy(desc(jobs.created_at));
+    .from(activations)
+    .where(eq(activations.client_id, id))
+    .orderBy(desc(activations.created_at));
 
   const clientInvoices = await db
     .select()
@@ -76,64 +79,113 @@ export async function getClientById(id: number) {
     .filter((i) => i.status === "sent" || i.status === "overdue")
     .reduce((s, i) => s + (i.amount ?? 0), 0);
 
-  return { ...client, jobs: clientJobs, invoices: clientInvoices, contacts, manager, totalBilled, outstanding };
+  return {
+    ...client,
+    activations: clientActivations,
+    jobs: clientActivations,
+    invoices: clientInvoices,
+    contacts,
+    manager,
+    totalBilled,
+    outstanding,
+  };
 }
 
-// ── Jobs ──────────────────────────────────────────────────────────────────────
+// ── Activations ───────────────────────────────────────────────────────────────
 
-export async function getJobs() {
-  const allJobs = await db.select().from(jobs).orderBy(desc(jobs.created_at));
+export async function getActivations() {
+  const all = await db.select().from(activations).orderBy(desc(activations.created_at));
   const allClients = await db.select().from(clients);
   const allUsers = await db.select().from(users);
 
-  return allJobs.map((j) => ({
+  return all.map((j) => ({
     ...j,
     client: allClients.find((c) => c.id === j.client_id),
     owner: allUsers.find((u) => u.id === j.owner_id),
   }));
 }
 
-export async function getJobById(id: number) {
-  const job = await db.select().from(jobs).where(eq(jobs.id, id)).get();
-  if (!job) return null;
+/** @deprecated use getActivations */
+export const getJobs = getActivations;
 
-  const client = await db.select().from(clients).where(eq(clients.id, job.client_id)).get();
-  const tasks = await db.select().from(job_tasks).where(eq(job_tasks.job_id, id));
-  const jobDeliverables = await db.select().from(deliverables).where(eq(deliverables.job_id, id));
-  const allocs = await db.select().from(studio_allocs).where(eq(studio_allocs.job_id, id));
-  const buys = await db.select().from(media_buys).where(eq(media_buys.job_id, id));
-  const jobInvoices = await db.select().from(invoices).where(eq(invoices.job_id, id));
+export async function getActivationById(id: number) {
+  const activation = await db.select().from(activations).where(eq(activations.id, id)).get();
+  if (!activation) return null;
+
+  const client = await db.select().from(clients).where(eq(clients.id, activation.client_id)).get();
+  const tasks = await db.select().from(event_tasks).where(eq(event_tasks.activation_id, id));
+  const actDeliverables = await db
+    .select()
+    .from(deliverables)
+    .where(eq(deliverables.activation_id, id));
+  const allocs = await db.select().from(studio_allocs).where(eq(studio_allocs.activation_id, id));
+  const buys = await db.select().from(media_buys).where(eq(media_buys.activation_id, id));
+  const actInvoices = await db.select().from(invoices).where(eq(invoices.activation_id, id));
   const allUsers = await db.select().from(users);
   const resources = await db.select().from(studio_resources);
 
   return {
-    ...job,
+    ...activation,
     client,
     tasks: tasks.map((t) => ({ ...t, assignee: allUsers.find((u) => u.id === t.assignee_id) })),
-    deliverables: jobDeliverables,
+    deliverables: actDeliverables,
     allocs: allocs.map((a) => ({ ...a, resource: resources.find((r) => r.id === a.resource_id) })),
     media_buys: buys,
-    invoices: jobInvoices,
-    owner: allUsers.find((u) => u.id === job.owner_id),
+    invoices: actInvoices,
+    owner: allUsers.find((u) => u.id === activation.owner_id),
+  };
+}
+
+/** @deprecated use getActivationById */
+export const getJobById = getActivationById;
+
+// ── Scheduling ────────────────────────────────────────────────────────────────
+
+export async function getScheduleItems() {
+  const items = await db.select().from(schedule_items).orderBy(desc(schedule_items.start_at));
+  const allUsers = await db.select().from(users);
+  const allActivations = await db.select().from(activations);
+
+  return items.map((item) => ({
+    ...item,
+    owner: allUsers.find((u) => u.id === item.owner_id),
+    related_activation: item.related_activation_id
+      ? allActivations.find((a) => a.id === item.related_activation_id)
+      : null,
+  }));
+}
+
+export async function getScheduleItemById(id: number) {
+  const item = await db.select().from(schedule_items).where(eq(schedule_items.id, id)).get();
+  if (!item) return null;
+
+  const allUsers = await db.select().from(users);
+  const tasks = await db.select().from(event_tasks).where(eq(event_tasks.schedule_item_id, id));
+  const related = item.related_activation_id
+    ? await db.select().from(activations).where(eq(activations.id, item.related_activation_id)).get()
+    : null;
+
+  return {
+    ...item,
+    owner: allUsers.find((u) => u.id === item.owner_id),
+    related_activation: related,
+    tasks: tasks.map((t) => ({ ...t, assignee: allUsers.find((u) => u.id === t.assignee_id) })),
   };
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export async function getDashboardMetrics() {
-  const now = new Date().toISOString().split("T")[0];
-
-  // Demo: total paid (seeded payments sit in prior calendar months)
   const revenueResult = await db
     .select({ total: sum(invoices.amount) })
     .from(invoices)
     .where(eq(invoices.status, "paid"))
     .get();
 
-  const activeJobs = await db
+  const activeActivations = await db
     .select({ cnt: count() })
-    .from(jobs)
-    .where(ne(jobs.stage, "complete"))
+    .from(activations)
+    .where(ne(activations.stage, "complete"))
     .get();
 
   const overdueInvoices = await db
@@ -142,8 +194,16 @@ export async function getDashboardMetrics() {
     .where(eq(invoices.status, "overdue"))
     .get();
 
-  const totalBuys = await db.select({ cnt: count() }).from(media_buys).where(eq(media_buys.status, "live")).get();
-  const okBuys = await db.select({ cnt: count() }).from(media_buys).where(and(eq(media_buys.status, "live"), eq(media_buys.pacing_status, "ok"))).get();
+  const totalBuys = await db
+    .select({ cnt: count() })
+    .from(media_buys)
+    .where(eq(media_buys.status, "live"))
+    .get();
+  const okBuys = await db
+    .select({ cnt: count() })
+    .from(media_buys)
+    .where(and(eq(media_buys.status, "live"), eq(media_buys.pacing_status, "ok")))
+    .get();
 
   const pendingActions = await db
     .select({ cnt: count() })
@@ -157,9 +217,12 @@ export async function getDashboardMetrics() {
     .where(sql`${leads.status} IN ('cold','warm','proposal')`)
     .get();
 
+  const activeCount = activeActivations?.cnt ?? 0;
+
   return {
     revenue: Number(revenueResult?.total ?? 0),
-    activeJobs: activeJobs?.cnt ?? 0,
+    activeActivations: activeCount,
+    activeJobs: activeCount,
     overdueCount: overdueInvoices?.cnt ?? 0,
     overdueTotal: Number(overdueInvoices?.total ?? 0),
     mediaPacingPct: totalBuys?.cnt ? Math.round(((okBuys?.cnt ?? 0) / totalBuys.cnt) * 100) : 100,
@@ -198,18 +261,17 @@ export async function getLeadFunnel() {
 export async function getStudioCapacity() {
   const today = new Date().toISOString().split("T")[0];
   const resources = await db.select().from(studio_resources);
-  const allocs = await db
-    .select()
-    .from(studio_allocs)
-    .where(eq(studio_allocs.date, today));
+  const allocs = await db.select().from(studio_allocs).where(eq(studio_allocs.date, today));
 
-  const allJobs = await db.select().from(jobs);
+  const allActivations = await db.select().from(activations);
 
   return resources.map((r) => {
     const todayAllocs = allocs.filter((a) => a.resource_id === r.id);
     const totalHours = todayAllocs.reduce((s, a) => s + a.hours, 0);
-    const jobsUsing = todayAllocs.map((a) => allJobs.find((j) => j.id === a.job_id)).filter(Boolean);
-    return { ...r, allocated: totalHours, jobsUsing };
+    const activationsUsing = todayAllocs
+      .map((a) => allActivations.find((j) => j.id === a.activation_id))
+      .filter(Boolean);
+    return { ...r, allocated: totalHours, activationsUsing, jobsUsing: activationsUsing };
   });
 }
 
@@ -217,8 +279,11 @@ export async function getStudioCapacity() {
 
 export async function getMediaBuys() {
   const buys = await db.select().from(media_buys).orderBy(desc(media_buys.id));
-  const allJobs = await db.select().from(jobs);
-  return buys.map((b) => ({ ...b, job: allJobs.find((j) => j.id === b.job_id) }));
+  const allActivations = await db.select().from(activations);
+  return buys.map((b) => {
+    const activation = allActivations.find((j) => j.id === b.activation_id);
+    return { ...b, activation, job: activation };
+  });
 }
 
 // ── Invoices ──────────────────────────────────────────────────────────────────
@@ -226,7 +291,7 @@ export async function getMediaBuys() {
 export async function getInvoices() {
   const allInvoices = await db.select().from(invoices).orderBy(desc(invoices.issued_date));
   const allClients = await db.select().from(clients);
-  const allJobs = await db.select().from(jobs);
+  const allActivations = await db.select().from(activations);
   const today = new Date().toISOString().split("T")[0];
 
   return allInvoices.map((inv) => {
@@ -234,10 +299,12 @@ export async function getInvoices() {
       inv.status === "overdue" && inv.due_date
         ? Math.floor((new Date(today).getTime() - new Date(inv.due_date).getTime()) / 86400000)
         : 0;
+    const activation = allActivations.find((j) => j.id === inv.activation_id);
     return {
       ...inv,
       client: allClients.find((c) => c.id === inv.client_id),
-      job: allJobs.find((j) => j.id === inv.job_id),
+      activation,
+      job: activation,
       daysOverdue,
     };
   });
@@ -284,17 +351,28 @@ export async function getPendingAutopilotCount() {
 // ── Production ────────────────────────────────────────────────────────────────
 
 export async function getProductionTasks() {
-  const tasks = await db.select().from(job_tasks).orderBy(job_tasks.due_date);
-  const allJobs = await db.select().from(jobs);
+  const tasks = await db.select().from(event_tasks).orderBy(event_tasks.due_date);
+  const allActivations = await db.select().from(activations);
+  const allSchedule = await db.select().from(schedule_items);
   const allUsers = await db.select().from(users);
   const resources = await db.select().from(studio_resources);
 
-  return tasks.map((t) => ({
-    ...t,
-    job: allJobs.find((j) => j.id === t.job_id),
-    assignee: allUsers.find((u) => u.id === t.assignee_id),
-    resource: resources.find((r) => r.id === t.studio_resource_id),
-  }));
+  return tasks.map((t) => {
+    const activation = t.activation_id
+      ? allActivations.find((j) => j.id === t.activation_id)
+      : null;
+    const scheduleItem = t.schedule_item_id
+      ? allSchedule.find((s) => s.id === t.schedule_item_id)
+      : null;
+    return {
+      ...t,
+      activation,
+      schedule_item: scheduleItem,
+      job: activation,
+      assignee: allUsers.find((u) => u.id === t.assignee_id),
+      resource: resources.find((r) => r.id === t.studio_resource_id),
+    };
+  });
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────

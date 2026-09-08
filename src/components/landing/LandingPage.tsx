@@ -240,7 +240,7 @@ export function LandingPage() {
             <span className="text-[#C4122F]">Win the brief.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-md text-sm text-white/50">
-            Clients · jobs · production · media · invoices · private-sector pipeline — one OS.
+            Clients · activations · scheduling · production · media · invoices · private-sector pipeline — one OS.
           </p>
           <Link
             href="/login"

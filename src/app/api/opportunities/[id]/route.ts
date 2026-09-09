@@ -7,6 +7,13 @@ import {
   cancelRemindersForOpportunity,
   scheduleRemindersForOpportunity,
 } from "@/lib/opportunity/reminders";
+import {
+  TRIAGE_COOKIE,
+  mergeTriageMap,
+  parseTriageCookie,
+  serializeTriageCookie,
+  triageCookieOptions,
+} from "@/lib/opportunity/triage-session";
 
 export async function PATCH(
   req: NextRequest,
@@ -71,5 +78,13 @@ export async function PATCH(
     });
   }
 
-  return NextResponse.json({ success: true, opportunity: updated });
+  // Cookie overlay: Vercel /tmp SQLite does not share across serverless instances
+  const map = mergeTriageMap(
+    parseTriageCookie(req.cookies.get(TRIAGE_COOKIE)?.value),
+    updated.external_id,
+    body.triage_status
+  );
+  const res = NextResponse.json({ success: true, opportunity: updated });
+  res.cookies.set(TRIAGE_COOKIE, serializeTriageCookie(map), triageCookieOptions());
+  return res;
 }

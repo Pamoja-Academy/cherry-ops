@@ -32,7 +32,7 @@ const DEMO_ROLES = [
     password: "cherry-ceo-2026",
     initials: "PM",
     name: "Pheladi Mphahlele",
-    hero: "/hero/cherry-ops-hero.jpg",
+    hero: "/hero/cherry-ops-hero-pheladi-locked.png",
     focus: "48% 12%",
   },
   {
@@ -41,7 +41,7 @@ const DEMO_ROLES = [
     password: "cherry-cd-2026",
     initials: "DV",
     name: "Danny van Vuuren",
-    hero: "/hero/cherry-ops-hero-danny.jpg",
+    hero: "/hero/cherry-ops-hero-danny-locked.png",
     focus: "50% 10%",
   },
   {
@@ -50,7 +50,7 @@ const DEMO_ROLES = [
     password: "cherry-dir-2026",
     initials: "JM",
     name: "Jenna Murray-Smith",
-    hero: "/hero/cherry-ops-hero-jenna.jpg",
+    hero: "/hero/cherry-ops-hero-jenna.png",
     focus: "50% 16%",
   },
   {
@@ -59,7 +59,7 @@ const DEMO_ROLES = [
     password: "cherry-prod-2026",
     initials: "RB",
     name: "Robbyn Burger",
-    hero: "/hero/cherry-ops-hero-robbyn.jpg",
+    hero: "/hero/cherry-ops-hero-robbyn-locked.png",
     focus: "50% 14%",
   },
   {
@@ -68,7 +68,7 @@ const DEMO_ROLES = [
     password: "cherry-media-2026",
     initials: "FD",
     name: "Faye Dawood",
-    hero: "/hero/cherry-ops-hero-faye.jpg",
+    hero: "/hero/cherry-ops-hero-faye-locked.png",
     focus: "50% 18%",
   },
   {
@@ -77,7 +77,7 @@ const DEMO_ROLES = [
     password: "cherry-fin-2026",
     initials: "AF",
     name: "Aliki Frantzeskos",
-    hero: "/hero/cherry-ops-hero-aliki.jpg",
+    hero: "/hero/cherry-ops-hero-aliki.png",
     focus: "50% 16%",
   },
 ];
@@ -85,8 +85,8 @@ const DEMO_ROLES = [
 const TEAM_SLIDE = {
   label: "Leadership",
   name: "Red Cherry Cast",
-  hero: "/hero/cherry-ops-team-wallpaper.jpg",
-  focus: "50% 40%",
+  hero: "/hero/cherry-ops-team-wallpaper-locked.png",
+  focus: "50% 38%",
 };
 
 /** Rotation: group shot first, then each locked hero */
@@ -230,22 +230,22 @@ export default function LoginPage() {
             </AnimatePresence>
           </motion.div>
 
-          {/* Soft light sweep */}
+          {/* Soft light sweep — keep faint so it does not stripe faces */}
           <motion.div
             className="pointer-events-none absolute inset-0 mix-blend-soft-light"
             style={{
               background:
-                "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.14) 48%, transparent 62%)",
+                "linear-gradient(115deg, transparent 36%, rgba(255,255,255,0.06) 50%, transparent 64%)",
             }}
-            animate={{ x: ["-40%", "55%", "-40%"] }}
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ x: ["-35%", "45%", "-35%"] }}
+            transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
           />
 
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(5,5,5,0.2) 0%, transparent 28%, rgba(5,5,5,0.35) 62%, rgba(5,5,5,0.94) 100%)",
+                "linear-gradient(180deg, rgba(5,5,5,0.15) 0%, transparent 32%, rgba(5,5,5,0.2) 55%, rgba(5,5,5,0.88) 100%)",
             }}
           />
 
@@ -275,79 +275,81 @@ export default function LoginPage() {
             />
           ))}
 
-          {/* Cast selector — stable arrows + static thumbnails (never drift under motion) */}
-          <div className="absolute inset-x-0 bottom-[7.5rem] z-20 flex items-end justify-center gap-3 px-6 xl:bottom-36">
-            <button
-              type="button"
-              aria-label="Previous hero"
-              onClick={() =>
-                selectSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, true)
-              }
-              className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
-            >
-              ‹
-            </button>
-            <div className="flex items-end justify-center gap-2 xl:gap-2.5">
-              {HERO_SLIDES.map((slide, i) => {
-                const selected = heroIndex === i;
-                return (
-                  <button
-                    key={slide.hero}
-                    type="button"
-                    aria-label={`Show ${slide.name}`}
-                    aria-pressed={selected}
-                    onClick={() => selectSlide(i, true)}
-                    className="group relative block overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
-                    style={{
-                      width: selected ? 56 : 44,
-                      height: selected ? 72 : 56,
-                      borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
-                      boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
-                      flex: "none",
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={slide.hero}
-                      alt=""
-                      className="h-full w-full object-cover"
-                      style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
-                      draggable={false}
-                    />
-                    <span
-                      className="pointer-events-none absolute inset-0"
+          {/* Brand + cast stacked — never overlap thumbnails with the wordmark */}
+          <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-5 p-8 xl:gap-6 xl:p-10">
+            <div className="flex items-end justify-center gap-3">
+              <button
+                type="button"
+                aria-label="Previous hero"
+                onClick={() =>
+                  selectSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, true)
+                }
+                className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+              >
+                ‹
+              </button>
+              <div className="flex items-end justify-center gap-2 xl:gap-2.5">
+                {HERO_SLIDES.map((slide, i) => {
+                  const selected = heroIndex === i;
+                  return (
+                    <button
+                      key={slide.hero}
+                      type="button"
+                      aria-label={`Show ${slide.name}`}
+                      aria-pressed={selected}
+                      onClick={() => selectSlide(i, true)}
+                      className="group relative block overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
                       style={{
-                        background: selected
-                          ? "transparent"
-                          : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
+                        width: selected ? 56 : 44,
+                        height: selected ? 72 : 56,
+                        borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
+                        boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
+                        flex: "none",
                       }}
-                    />
-                  </button>
-                );
-              })}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={slide.hero}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
+                        draggable={false}
+                      />
+                      <span
+                        className="pointer-events-none absolute inset-0"
+                        style={{
+                          background: selected
+                            ? "transparent"
+                            : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
+                        }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                aria-label="Next hero"
+                onClick={() => selectSlide((heroIndex + 1) % HERO_SLIDES.length, true)}
+                className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+              >
+                ›
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label="Next hero"
-              onClick={() => selectSlide((heroIndex + 1) % HERO_SLIDES.length, true)}
-              className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
-            >
-              ›
-            </button>
-          </div>
 
-          <div className="absolute inset-x-0 bottom-0 z-10 p-8 xl:p-10">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
-              Red Cherry Interactive
-            </p>
-            <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.05em] xl:text-6xl">
-              CHERRY
-              <br />
-              <span className="text-[#C4122F]">OPS</span>
-            </h1>
-            <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
-              {active.name} · {active.label}
-            </p>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
+                Red Cherry Interactive
+              </p>
+              <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.05em] xl:text-6xl">
+                CHERRY
+                <br />
+                <span className="text-[#C4122F]">OPS</span>
+              </h1>
+              <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
+                {active.name} · {active.label}
+              </p>
+            </div>
           </div>
         </section>
 
@@ -477,11 +479,11 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-5 flex min-h-0 flex-1 flex-col">
+            <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden">
               <p className="mb-2 shrink-0 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/35">
                 Demo access
               </p>
-              <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+              <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain pr-1">
                 {DEMO_ROLES.map((role, i) => (
                   <button
                     key={role.email}

@@ -27,6 +27,11 @@ export function OpportunityRowActions({ opportunityId }: Props) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(data.error ?? "Triage failed");
       }
+      if (status === "approved") {
+        router.push("/pitches");
+        router.refresh();
+        return;
+      }
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Triage failed");

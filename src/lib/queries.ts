@@ -410,14 +410,22 @@ export async function getWorkspaceSettings() {
 // ── Opportunity Ops ───────────────────────────────────────────────────────────
 
 export async function getOpportunities(showAll = false) {
-  const rows = await db.select().from(opportunities).orderBy(desc(opportunities.closing_at));
+  const { applyTriageOverrides, readTriageMap } = await import("@/lib/opportunity/triage-session");
+  const rows = applyTriageOverrides(
+    await db.select().from(opportunities).orderBy(desc(opportunities.closing_at)),
+    await readTriageMap()
+  );
   if (showAll) return rows;
-  return rows.filter((o) => (o.fit_score ?? 0) >= 40 || o.triage_status !== "pending");
+  // Inbox: pending + score≥40; pitched/passed leave the default inbox
+  return rows.filter((o) => o.triage_status === "pending" && (o.fit_score ?? 0) >= 40);
 }
 
 export async function getOpportunityById(id: number) {
+  const { applyTriageOverrides, readTriageMap } = await import("@/lib/opportunity/triage-session");
   const opp = await db.select().from(opportunities).where(eq(opportunities.id, id)).get();
   if (!opp) return null;
+
+  const [merged] = applyTriageOverrides([opp], await readTriageMap());
 
   const reminders = await db
     .select()
@@ -425,19 +433,21 @@ export async function getOpportunityById(id: number) {
     .where(eq(opportunity_reminders.opportunity_id, id))
     .orderBy(opportunity_reminders.offset_hours);
 
-  const triagedBy = opp.triaged_by
-    ? await db.select().from(users).where(eq(users.id, opp.triaged_by)).get()
+  const triagedBy = merged.triaged_by
+    ? await db.select().from(users).where(eq(users.id, merged.triaged_by)).get()
     : null;
 
-  return { ...opp, reminders, triagedBy };
+  return { ...merged, reminders, triagedBy };
 }
 
 export async function getPitches() {
-  const approved = await db
-    .select()
-    .from(opportunities)
-    .where(eq(opportunities.triage_status, "approved"))
-    .orderBy(opportunities.closing_at);
+  const { applyTriageOverrides, readTriageMap } = await import("@/lib/opportunity/triage-session");
+  const map = await readTriageMap();
+  const rows = applyTriageOverrides(
+    await db.select().from(opportunities).orderBy(opportunities.closing_at),
+    map
+  );
+  const approved = rows.filter((o) => o.triage_status === "approved");
 
   const allReminders = await db.select().from(opportunity_reminders);
 

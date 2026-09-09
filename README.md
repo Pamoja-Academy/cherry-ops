@@ -2,18 +2,24 @@
 
 **Red Cherry Interactive's Agency Operating System** — contest-ready CRM for full agency ops + private-sector growth.
 
-Built for Pheladi Mphahlele (CEO) and the Creative Director. Deploys on Vercel as `cherry-ops.vercel.app`.
+Built for Pheladi Mphahlele (CEO) and the Creative Director. Live: **https://cherry-ops-hazel.vercel.app** (not `cherry-ops.vercel.app` — that host is a different, password-walled project).
 
 ## Quick start (local — recommended for live demo)
 
+**Windows + Node 24:** `better-sqlite3` needs a C++ toolchain. Use Docker (fastest) or install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) then `npm install`.
+
 ```powershell
 cd cherry-ops
+# Option A — Docker (recommended on this machine)
+.\scripts\local-dev-docker.ps1
+
+# Option B — native (Node 20 LTS + build tools)
 npm install
 npm run db:seed
 npm run dev
 ```
 
-Open **http://localhost:3000** → click **CEO — Pheladi Mphahlele** on the login page.
+Open **http://localhost:3000/login** → click **Pheladi Mphahlele (CEO)** on the demo strip.
 
 ## Demo logins
 
@@ -55,9 +61,9 @@ Repo: **https://github.com/Pamoja-Academy/cherry-ops**
 |----------|-------|
 | `NEXTAUTH_SECRET` | `cherry-ops-secret-2026-contest` (change for prod) |
 | `AUTH_SECRET` | same |
-| `NEXTAUTH_URL` | `https://cherry-ops.vercel.app` |
+| `NEXTAUTH_URL` / `AUTH_URL` | `https://cherry-ops-hazel.vercel.app` |
 
-4. Deploy → URL: **https://cherry-ops.vercel.app**
+4. Deploy → production alias: **https://cherry-ops-hazel.vercel.app**
 
 Demo DB is bundled in `data/cherry-ops.db` and copied to `/tmp` on Vercel cold starts.
 

@@ -85,19 +85,23 @@ const DEMO_ROLES = [
 const TEAM_SLIDE = {
   label: "Leadership",
   name: "Red Cherry Cast",
+  // Group wallpaper has baked face-glitch bars — keep selectable, never default
   hero: "/hero/cherry-ops-team-wallpaper-locked.png",
   focus: "50% 38%",
 };
 
-/** Rotation: group shot first, then each locked hero */
-const HERO_SLIDES = [TEAM_SLIDE, ...DEMO_ROLES.map((r) => ({
-  label: r.label,
-  name: r.name,
-  hero: r.hero,
-  focus: r.focus,
-}))];
+/** Rotation: clean individual locked heroes first; glitched group shot last only */
+const HERO_SLIDES = [
+  ...DEMO_ROLES.map((r) => ({
+    label: r.label,
+    name: r.name,
+    hero: r.hero,
+    focus: r.focus,
+  })),
+  TEAM_SLIDE,
+];
 
-const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 8 }, (_, i) => ({
   id: i,
   left: `${6 + ((i * 17) % 88)}%`,
   delay: i * 0.35,
@@ -163,17 +167,14 @@ export default function LoginPage() {
       userPicked.current = true;
       setPaused(true);
     }
-    // Cast tabs 1..n map to DEMO_ROLES — fill form credentials underneath.
-    if (index >= 1) {
-      const role = DEMO_ROLES[index - 1];
-      if (role) applyRoleCredentials(role);
-    }
+    // Individuals are indices 0..n-1; team wallpaper is last — no credentials.
+    const role = DEMO_ROLES[index];
+    if (role) applyRoleCredentials(role);
   }
 
   function fillRole(role: (typeof DEMO_ROLES)[0], roleIndex: number) {
     applyRoleCredentials(role);
-    // DEMO_ROLES map to HERO_SLIDES index + 1 (0 is team)
-    setHeroIndex(roleIndex + 1);
+    setHeroIndex(roleIndex);
   }
 
   const active = HERO_SLIDES[heroIndex];
@@ -201,9 +202,9 @@ export default function LoginPage() {
           />
 
           <motion.div
-            className="absolute inset-[-8%]"
+            className="absolute inset-x-[-8%] bottom-[-8%] top-14 xl:top-16"
             animate={{
-              scale: [1.08, 1.14, 1.1, 1.16, 1.08],
+              scale: [1.06, 1.12, 1.08, 1.14, 1.06],
               x: [0, -14, 6, -8, 0],
               y: [0, 8, -4, 10, 0],
             }}
@@ -230,41 +231,41 @@ export default function LoginPage() {
             </AnimatePresence>
           </motion.div>
 
-          {/* Soft light sweep — keep faint so it does not stripe faces */}
+          {/* Soft light sweep — faint so it does not stripe faces */}
           <motion.div
             className="pointer-events-none absolute inset-0 mix-blend-soft-light"
             style={{
               background:
-                "linear-gradient(115deg, transparent 36%, rgba(255,255,255,0.06) 50%, transparent 64%)",
+                "linear-gradient(115deg, transparent 36%, rgba(255,255,255,0.05) 50%, transparent 64%)",
             }}
             animate={{ x: ["-35%", "45%", "-35%"] }}
             transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
           />
 
+          {/* Face-safe mid zone: scrims only at top (strip) and bottom (brand) */}
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(5,5,5,0.15) 0%, transparent 32%, rgba(5,5,5,0.2) 55%, rgba(5,5,5,0.88) 100%)",
+                "linear-gradient(180deg, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0.15) 12%, transparent 22%, transparent 58%, rgba(5,5,5,0.55) 78%, rgba(5,5,5,0.94) 100%)",
             }}
           />
 
           {PARTICLES.map((p) => (
             <motion.span
               key={p.id}
-              className="pointer-events-none absolute bg-[#C4122F]"
+              className="pointer-events-none absolute rounded-full bg-[#C4122F]"
               style={{
                 left: p.left,
                 bottom: "-4%",
                 width: p.size,
-                height: p.size * 1.6,
-                boxShadow: "0 0 8px rgba(196,18,47,0.6)",
+                height: p.size,
+                boxShadow: "0 0 6px rgba(196,18,47,0.45)",
               }}
               animate={{
                 y: [0, -820],
-                x: [0, (p.id % 2 === 0 ? 1 : -1) * (14 + p.id * 2)],
-                opacity: [0, 0.85, 0],
-                rotate: [0, 40 + p.id * 8],
+                x: [0, (p.id % 2 === 0 ? 1 : -1) * (10 + p.id * 2)],
+                opacity: [0, 0.55, 0],
               }}
               transition={{
                 duration: p.duration,
@@ -275,81 +276,80 @@ export default function LoginPage() {
             />
           ))}
 
-          {/* Brand + cast stacked — never overlap thumbnails with the wordmark */}
-          <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-5 p-8 xl:gap-6 xl:p-10">
-            <div className="flex items-end justify-center gap-3">
-              <button
-                type="button"
-                aria-label="Previous hero"
-                onClick={() =>
-                  selectSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, true)
-                }
-                className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
-              >
-                ‹
-              </button>
-              <div className="flex items-end justify-center gap-2 xl:gap-2.5">
-                {HERO_SLIDES.map((slide, i) => {
-                  const selected = heroIndex === i;
-                  return (
-                    <button
-                      key={slide.hero}
-                      type="button"
-                      aria-label={`Show ${slide.name}`}
-                      aria-pressed={selected}
-                      onClick={() => selectSlide(i, true)}
-                      className="group relative block overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+          {/* Cast strip at TOP — never across the face mid-zone */}
+          <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-center gap-2 px-6 py-5 xl:gap-3 xl:px-8 xl:py-6">
+            <button
+              type="button"
+              aria-label="Previous hero"
+              onClick={() =>
+                selectSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, true)
+              }
+              className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/20 bg-black/55 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+            >
+              ‹
+            </button>
+            <div className="flex items-end justify-center gap-1.5 xl:gap-2">
+              {HERO_SLIDES.map((slide, i) => {
+                const selected = heroIndex === i;
+                return (
+                  <button
+                    key={slide.hero}
+                    type="button"
+                    aria-label={`Show ${slide.name}`}
+                    aria-pressed={selected}
+                    onClick={() => selectSlide(i, true)}
+                    className="group relative block overflow-hidden border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+                    style={{
+                      width: selected ? 48 : 36,
+                      height: selected ? 60 : 46,
+                      borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
+                      boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
+                      flex: "none",
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slide.hero}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      style={{ objectPosition: slide.focus }}
+                      draggable={false}
+                    />
+                    <span
+                      className="pointer-events-none absolute inset-0"
                       style={{
-                        width: selected ? 56 : 44,
-                        height: selected ? 72 : 56,
-                        borderColor: selected ? "#C4122F" : "rgba(255,255,255,0.2)",
-                        boxShadow: selected ? "0 0 0 1px rgba(196,18,47,0.5)" : "none",
-                        flex: "none",
+                        background: selected
+                          ? "transparent"
+                          : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
                       }}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={slide.hero}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
-                        draggable={false}
-                      />
-                      <span
-                        className="pointer-events-none absolute inset-0"
-                        style={{
-                          background: selected
-                            ? "transparent"
-                            : "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%)",
-                        }}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                type="button"
-                aria-label="Next hero"
-                onClick={() => selectSlide((heroIndex + 1) % HERO_SLIDES.length, true)}
-                className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-black/60 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
-              >
-                ›
-              </button>
+                    />
+                  </button>
+                );
+              })}
             </div>
+            <button
+              type="button"
+              aria-label="Next hero"
+              onClick={() => selectSlide((heroIndex + 1) % HERO_SLIDES.length, true)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/20 bg-black/55 text-lg text-white backdrop-blur-sm transition hover:border-[#C4122F] hover:text-[#C4122F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C4122F]"
+            >
+              ›
+            </button>
+          </div>
 
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
-                Red Cherry Interactive
-              </p>
-              <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.05em] xl:text-6xl">
-                CHERRY
-                <br />
-                <span className="text-[#C4122F]">OPS</span>
-              </h1>
-              <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
-                {active.name} · {active.label}
-              </p>
-            </div>
+          {/* Brand only at bottom — compact so it stays in the gradient, not the face */}
+          <div className="absolute inset-x-0 bottom-0 z-20 px-8 pb-8 pt-16 xl:px-10 xl:pb-10">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#C4122F]">
+              Red Cherry Interactive
+            </p>
+            <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.05em] xl:text-6xl">
+              CHERRY
+              <br />
+              <span className="text-[#C4122F]">OPS</span>
+            </h1>
+            <p className="mt-3 max-w-sm text-xs text-white/45 xl:text-sm">
+              {active.name} · {active.label}
+            </p>
           </div>
         </section>
 
@@ -384,7 +384,7 @@ export default function LoginPage() {
                     src={slide.hero}
                     alt=""
                     className="h-full w-full object-cover"
-                    style={{ objectPosition: i === 0 ? "50% 35%" : slide.focus }}
+                    style={{ objectPosition: slide.focus }}
                   />
                 </button>
               ))}

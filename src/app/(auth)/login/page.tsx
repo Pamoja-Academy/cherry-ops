@@ -367,28 +367,6 @@ export default function LoginPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
             </div>
-            <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
-              {HERO_SLIDES.map((slide, i) => (
-                <button
-                  key={slide.hero}
-                  type="button"
-                  aria-label={`Show ${slide.name}`}
-                  onClick={() => selectSlide(i, true)}
-                  className="h-10 w-10 flex-shrink-0 overflow-hidden border"
-                  style={{
-                    borderColor: heroIndex === i ? "#C4122F" : "rgba(255,255,255,0.2)",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={slide.hero}
-                    alt=""
-                    className="h-full w-full object-cover"
-                    style={{ objectPosition: slide.focus }}
-                  />
-                </button>
-              ))}
-            </div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#C4122F]">
               Red Cherry Interactive
             </p>

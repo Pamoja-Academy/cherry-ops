@@ -82,24 +82,13 @@ const DEMO_ROLES = [
   },
 ];
 
-const TEAM_SLIDE = {
-  label: "Leadership",
-  name: "Red Cherry Cast",
-  // Group wallpaper has baked face-glitch bars — keep selectable, never default
-  hero: "/hero/cherry-ops-team-wallpaper-locked.png",
-  focus: "50% 38%",
-};
-
-/** Rotation: clean individual locked heroes first; glitched group shot last only */
-const HERO_SLIDES = [
-  ...DEMO_ROLES.map((r) => ({
-    label: r.label,
-    name: r.name,
-    hero: r.hero,
-    focus: r.focus,
-  })),
-  TEAM_SLIDE,
-];
+/** Clean individual locked heroes only — glitched group wallpaper stays off the strip until a clean composite exists on disk */
+const HERO_SLIDES = DEMO_ROLES.map((r) => ({
+  label: r.label,
+  name: r.name,
+  hero: r.hero,
+  focus: r.focus,
+}));
 
 const PARTICLES = Array.from({ length: 8 }, (_, i) => ({
   id: i,
@@ -167,7 +156,7 @@ export default function LoginPage() {
       userPicked.current = true;
       setPaused(true);
     }
-    // Individuals are indices 0..n-1; team wallpaper is last — no credentials.
+    // HERO_SLIDES indices match DEMO_ROLES 1:1
     const role = DEMO_ROLES[index];
     if (role) applyRoleCredentials(role);
   }
@@ -356,7 +345,7 @@ export default function LoginPage() {
         {/* Right: compact form */}
         <section className="relative flex h-full min-h-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-10 lg:border-l lg:border-white/10 lg:px-12">
           <div className="mb-4 shrink-0 lg:hidden">
-            {/* Mobile: show active hero including team wallpaper */}
+            {/* Mobile: active individual hero banner */}
             <div className="relative mb-4 h-36 w-full overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

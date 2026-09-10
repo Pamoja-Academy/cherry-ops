@@ -20,3 +20,4 @@
 - Red Cherry **Interactive** means writable CRM flows (create/edit/save), not seeded read-only screens — Settings and core entities must persist changes.
 - Visual login work that only exists on preview/SSO branches is invisible on the production alias — promote to `cherry-ops-hazel.vercel.app` (or merge to the production branch) or the user correctly sees "no changes".
 - Never ship hazel from a dirty CLI root that lacks `src/app` — that fails with "Couldn't find any pages or app directory"; promote a green Git/master deploy instead.
+- Skills sync ("Syncing your skills… 0 of N") is Desktop→cloud upload of %USERPROFILE%\\.cursor\\skills only — Cloud Agents cannot complete or repair that UI; cancel/toggle sync on Desktop or put skills in the repo.

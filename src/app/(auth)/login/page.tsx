@@ -82,24 +82,13 @@ const DEMO_ROLES = [
   },
 ];
 
-const TEAM_SLIDE = {
-  label: "Leadership",
-  name: "Red Cherry Cast",
-  // Group wallpaper has baked face-glitch bars — keep selectable, never default
-  hero: "/hero/cherry-ops-team-wallpaper-locked.png",
-  focus: "50% 38%",
-};
-
-/** Rotation: clean individual locked heroes first; glitched group shot last only */
-const HERO_SLIDES = [
-  ...DEMO_ROLES.map((r) => ({
-    label: r.label,
-    name: r.name,
-    hero: r.hero,
-    focus: r.focus,
-  })),
-  TEAM_SLIDE,
-];
+/** Clean individual locked heroes only — glitched group wallpaper stays off the strip until a clean composite exists on disk */
+const HERO_SLIDES = DEMO_ROLES.map((r) => ({
+  label: r.label,
+  name: r.name,
+  hero: r.hero,
+  focus: r.focus,
+}));
 
 const PARTICLES = Array.from({ length: 8 }, (_, i) => ({
   id: i,
@@ -167,7 +156,7 @@ export default function LoginPage() {
       userPicked.current = true;
       setPaused(true);
     }
-    // Individuals are indices 0..n-1; team wallpaper is last — no credentials.
+    // HERO_SLIDES indices match DEMO_ROLES 1:1
     const role = DEMO_ROLES[index];
     if (role) applyRoleCredentials(role);
   }
@@ -356,7 +345,7 @@ export default function LoginPage() {
         {/* Right: compact form */}
         <section className="relative flex h-full min-h-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-10 lg:border-l lg:border-white/10 lg:px-12">
           <div className="mb-4 shrink-0 lg:hidden">
-            {/* Mobile: show active hero including team wallpaper */}
+            {/* Mobile: active individual hero banner */}
             <div className="relative mb-4 h-36 w-full overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -366,28 +355,6 @@ export default function LoginPage() {
                 style={{ objectPosition: active.focus }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
-            </div>
-            <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
-              {HERO_SLIDES.map((slide, i) => (
-                <button
-                  key={slide.hero}
-                  type="button"
-                  aria-label={`Show ${slide.name}`}
-                  onClick={() => selectSlide(i, true)}
-                  className="h-10 w-10 flex-shrink-0 overflow-hidden border"
-                  style={{
-                    borderColor: heroIndex === i ? "#C4122F" : "rgba(255,255,255,0.2)",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={slide.hero}
-                    alt=""
-                    className="h-full w-full object-cover"
-                    style={{ objectPosition: slide.focus }}
-                  />
-                </button>
-              ))}
             </div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#C4122F]">
               Red Cherry Interactive
